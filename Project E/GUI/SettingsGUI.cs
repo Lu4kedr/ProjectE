@@ -5,9 +5,6 @@ using Project_E.Lib.Runes;
 using Project_E.Lib.Skills;
 using Project_E.Lib.WeaponsSet;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Project_E.GUI

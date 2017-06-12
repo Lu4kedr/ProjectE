@@ -12,11 +12,9 @@ using Project_E.Lib.Skills;
 using Project_E.Lib.WallManager;
 using Project_E.Lib.WeaponsSet;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Forms;
 // TODO SpellManager
 // TODO Resource manager

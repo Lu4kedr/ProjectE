@@ -1,13 +1,11 @@
 ﻿using Phoenix;
 using Phoenix.Communication;
-using Phoenix.Communication.Packets;
 using Phoenix.WorldData;
 using Project_E.GUI;
 using Project_E.Lib.Healing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Project_E.Lib.Skills
 {

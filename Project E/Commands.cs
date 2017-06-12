@@ -2,9 +2,6 @@
 using Phoenix.WorldData;
 using Project_E.Lib.WeaponsSet;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using static Project_E.Lib.Watcher;
 

@@ -3,15 +3,13 @@ using Phoenix.WorldData;
 using Project_E.GUI;
 using Project_E.Lib.WeaponsSet;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using static Project_E.Lib.Watcher;
 
 namespace Project_E.Lib.Healing
-{ 
+{
     public class AutoHeal
     {
         public bool Running = false;

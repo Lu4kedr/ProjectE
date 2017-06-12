@@ -1,11 +1,8 @@
 ﻿using Phoenix.Gui;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Project_E.Lib.GameWindow
 {
