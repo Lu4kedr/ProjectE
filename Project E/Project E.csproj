@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,17 +31,84 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Phoenix">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Erebor\Phoenix\Phoenix.dll</HintPath>
+    </Reference>
+    <Reference Include="PhoenixShared">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Erebor\Phoenix\PhoenixShared.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="GUI\AddDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\AddDialog.Designer.cs">
+      <DependentUpon>AddDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Erebor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI\Erebor.Designer.cs">
+      <DependentUpon>Erebor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\OnChangedArgs.cs" />
+    <Compile Include="GUI\SettingsGUI.cs" />
+    <Compile Include="Initialize.cs" />
+    <Compile Include="Lib\Abilities.cs" />
+    <Compile Include="Lib\Autolot.cs" />
+    <Compile Include="Lib\DrinkManager\DrinkManager.cs" />
+    <Compile Include="Lib\DrinkManager\Potion.cs" />
+    <Compile Include="Lib\DrinkManager\PotionLoseArgs.cs" />
+    <Compile Include="Lib\EquipSet\EqSet.cs" />
+    <Compile Include="Lib\EquipSet\EquipSet.cs" />
+    <Compile Include="Lib\Facilitation.cs" />
+    <Compile Include="Lib\GameWindow\GameWIndoSizeDATA.cs" />
+    <Compile Include="Lib\GameWindow\GameWindowSize.cs" />
+    <Compile Include="Lib\Healing\AutoHeal.cs" />
+    <Compile Include="Lib\Healing\HealedPlayers.cs" />
+    <Compile Include="Lib\Healing\Patient.cs" />
+    <Compile Include="Lib\Runes\Rune.cs" />
+    <Compile Include="Lib\Runes\RuneTree.cs" />
+    <Compile Include="Lib\ScreenCapture.cs" />
+    <Compile Include="Lib\Skills\Skills.cs" />
+    <Compile Include="Lib\Skills\Tracking.cs" />
+    <Compile Include="Lib\SwitcheableHotkeys.cs" />
+    <Compile Include="Lib\Targeting.cs" />
+    <Compile Include="Lib\TreasureMap.cs" />
+    <Compile Include="Lib\WallManager\Wall.cs" />
+    <Compile Include="Lib\WallManager\WallCollection.cs" />
+    <Compile Include="Lib\WallManager\WallManager.cs" />
+    <Compile Include="Lib\WallManager\WallTime.cs" />
+    <Compile Include="Lib\WallManager\WallTimer.cs" />
+    <Compile Include="Lib\Watcher.cs" />
+    <Compile Include="Lib\WeaponsSet\Weapons.cs" />
+    <Compile Include="Lib\WeaponsSet\WeaponSet.cs" />
+    <Compile Include="Lib\XMLSerializerHelper.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

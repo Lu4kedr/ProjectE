@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Project E")]
-[assembly: AssemblyDescription("Phoenix Extension for UOErebor")]
+[assembly: AssemblyTitle("UOMap")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Project E")]
+[assembly: AssemblyProduct("UOMap")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("029c7a75-66fb-4f06-9897-2d2beea3e061")]
+[assembly: Guid("fe70dbd2-b645-4cd0-8d74-f9294f17e5d5")]
 
 // Version information for an assembly consists of the following four values:
 //
