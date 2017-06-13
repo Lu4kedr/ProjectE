@@ -1,6 +1,9 @@
 ﻿using Phoenix;
+using Phoenix.Communication.Packets;
 using Phoenix.WorldData;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Project_E.Lib
 {
@@ -64,8 +67,28 @@ namespace Project_E.Lib
         }
 
 
+        #region Voodoo
 
 
+
+        enum VoodooState
+        {
+            Fail,
+            Success,
+            Wait,
+            Redo
+        }
+        Dictionary<string, UOItem> boostBottles = new Dictionary<string, UOItem>()
+        {
+            { "str", null},
+            { "dex", null},
+            { "int", null},
+            { "def", null}
+
+        };
+        List<Graphic> HeadGraphics = new List<Graphic>() { 0x1DAE, 0x1DA0, 0x1CE9, 0x1CE1 };
+
+        private VoodooState done;
 
         public void Sacrafire(Action bandage)
         {
@@ -93,5 +116,77 @@ namespace Project_E.Lib
             else UO.PrintWarning("malo HP!!");
         }
 
+
+
+
+        public void selfboost(string type)
+        {
+            boostBottles["str"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0835));
+            boostBottles["dex"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0006));
+            boostBottles["int"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x06C2));
+            boostBottles["def"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0999));
+
+            UOItem head = null;
+
+            foreach (var it in World.Player.Backpack.AllItems.Where(x => HeadGraphics.Any(y=>x.Graphic==y)).ToList())
+            {
+                it.Click();
+                UO.Wait(100);
+                if (it.Name == World.Player.Name) head = new UOItem(it);
+            }
+            if (head == null)
+            {
+                UO.Print("Nemas svou hlavu");
+                if (type == "int")
+                {
+                    UO.Cast(StandardSpell.Cunning, World.Player);
+                    UO.Wait(2200);
+                    UO.Cast(StandardSpell.Protection, World.Player);
+                }
+                return;
+            }
+            try
+            {
+                Core.RegisterServerMessageCallback(0x1C, onVoodoo);
+                done = VoodooState.Fail;
+                if (boostBottles[type] == null || boostBottles[type].Serial == 0xFFFFFFFF || boostBottles[type].Serial == Serial.Invalid)
+                {
+                    UO.PrintError("Nemas {0} lahev.", type);
+                    return;
+                }
+                while (done != VoodooState.Wait)
+                {
+                    boostBottles[type].WaitTarget();
+                    head.Use();
+                    UO.Wait(200);
+                }
+                while (done != VoodooState.Success) UO.Wait(400);
+                UO.Wait(100);
+
+            }
+            catch (Exception ex) { UO.PrintError(ex.InnerException.Message); }
+            finally
+            {
+
+                Core.UnregisterServerMessageCallback(0x1C, onVoodoo);
+            }
+
+
+
+        }
+
+
+
+        CallbackResult onVoodoo(byte[] data, CallbackResult prev)//0x1C
+        {
+            AsciiSpeech ass = new AsciiSpeech(data);
+            if (ass.Text.Contains("Nepovedlo se")) done = VoodooState.Fail;
+            if (ass.Text.Contains("Cil podlehl ")) done = VoodooState.Success;
+            if (ass.Text.Contains("Jeste nelze pouzit.")) done = VoodooState.Redo;
+            if (ass.Text.Contains("prokleti voodoo seslano uspesne")) done = VoodooState.Wait;
+            if (ass.Text.Contains("prokleti nenalezlo cil.")) done = VoodooState.Wait;
+            return CallbackResult.Normal;
+        }
+        #endregion
     }
 }

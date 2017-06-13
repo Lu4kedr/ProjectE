@@ -14,6 +14,8 @@ namespace Project_E
         private UOCharacter provo1;
         private UOCharacter provo2;
         DateTime HiddenTime;
+        private bool HealRun;
+
         public Commands()
         {
             
@@ -240,24 +242,44 @@ namespace Project_E
             Main.Instance.SK.HarmSelf(attacklast);
         }
 
-        [Command]
-        public void ccast(string spellname, Serial target)
-        {
-            Main.Instance.SK.ccast(spellname, target, bandage, obet);
-
-        }
 
         [Command]
         public void nhcast(string spellname, Serial target)
         {
-            Main.Instance.SK.ccast(spellname, target, bandage, obet, Main.Instance.AH);
+            Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+            if (Main.Instance.AH.Running)
+            {
+                Main.Instance.AH.Stop();
+                if (spellname == "frostbolt" || spellname == "necrobolt")
+                {
+                    new UOCharacter(target).WaitTarget();
+                    UO.Say("." + spellname);
+                }
+                else
+                    UO.Cast(spellname, target);
+                HealRun = true;
+            }
+            else
+            {
+                UO.Cast(spellname, target);
 
+            }
+        }
+
+        private void SM_OnSpellDone(object sender, Lib.SpellManager.SpellManager.OnSpellDoneArgs e)
+        {
+            if(HealRun)
+            {
+                HealRun = false;
+                Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+                Main.Instance.AH.Start();
+            }
         }
 
         [Command]
         public void inv()
         {
-            Main.Instance.SK.Invis(bandage, obet);
+            Main.Instance.SK.Invis();
 
         }
 
@@ -279,6 +301,15 @@ namespace Project_E
         public void petheal()
         {
             Main.Instance.SK.Vet();
+        }
+
+
+
+        [Command,BlockMultipleExecutions]
+        public void boost(string type)
+        {
+            Main.Instance.AB.selfboost(type);
+            UO.Print("DOne");
         }
     }
 }

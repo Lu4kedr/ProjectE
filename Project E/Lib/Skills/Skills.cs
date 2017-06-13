@@ -268,42 +268,7 @@ namespace Project_E.Lib.Skills
         Dictionary<string, int> SpellsDelays = new Dictionary<string, int> { { "Fireball", 2060 }, { "Flame", 4100 }, { "Meteor", 6750 }, { "Lightning", 3550 }, { "Bolt", 3100 }, { "frostbolt", 3000 }, { "Harm", 1500 }, { "Mind", 3450 }, { "Invis", 3300 }/*-150*/ };
 
 
-        public void ccast(string spellname, Serial target, Action bandage, Action Sacrafire)
-        {
-            if (World.Player.Hits < World.Player.MaxHits - 7) bandage();
-            if (Settings.AutoSacrafire && Settings.KlerikShaman == 1 && World.Player.Mana < World.Player.MaxMana - short.Parse(Settings.Sacrafire)) Sacrafire();
-            UO.Attack(target);
-            Aliases.LastAttack = target;
-            if (spellname == "necrobolt" || spellname == "frostbolt")
-            {
-                UO.WaitTargetObject(target);
-                UO.Say("." + spellname);
-            }
-            else
-            {
-                UO.Cast(spellname, target);
-            }
-        }
 
-        public void ccast(string spellname, Serial target, Action bandage, Action Sacrafire, AutoHeal Aheal)
-        {
-            if(Aheal.Running)Aheal.Stop();
-            if (World.Player.Hits < World.Player.MaxHits - 7) bandage();
-            if (Settings.AutoSacrafire && Settings.KlerikShaman == 1 && World.Player.Mana < World.Player.MaxMana - short.Parse(Settings.Sacrafire)) Sacrafire();
-            UO.Attack(target);
-            Aliases.LastAttack = target;
-            if (spellname == "necrobolt" || spellname == "frostbolt")
-            {
-                UO.WaitTargetObject(target);
-                UO.Say("." + spellname);
-            }
-            else
-            {
-                UO.Cast(spellname, target);
-            }
-            Journal.WaitForText(true, SpellsDelays[spellname] + 100,"kouzlo se nezdarilo.");
-            if (Aheal.Running) Aheal.Start();
-        }
 
 
         public void ReactiveArmor(Serial target)
@@ -320,12 +285,11 @@ namespace Project_E.Lib.Skills
             UO.PrintError("Reactiv vyprsel");
         }
 
-        public void Invis(Action bandage, Action Sacrafire)
+        public void Invis()
         {
             int tmp = 8;
             UO.Warmode(false);
-            if (World.Player.Hits < World.Player.MaxHits - 7) bandage();
-            ccast("Invis", Aliases.Self, bandage, Sacrafire);
+            UO.Cast("Invis", Aliases.Self);
 
             if (Journal.WaitForText(true, SpellsDelays["Invis"] / 3, "Kouzlo se nezdarilo.")) return;
             World.Player.Print(3);
@@ -356,7 +320,6 @@ namespace Project_E.Lib.Skills
                         }
                     }
                     Core.UnregisterClientMessageCallback(0x02, blockStep);
-                    if (World.Player.Hits < World.Player.MaxHits - 7) bandage();
                 }
             }
         }
@@ -407,7 +370,7 @@ namespace Project_E.Lib.Skills
                 var target = Aliases.LastAttack;
                 while (autocast)
                 {
-                    ccast(spellname, target,bandage,Sacrafire);
+                    UO.Cast(spellname, target);
                     start = DateTime.Now;
                     while ((DateTime.Now - start) < TimeSpan.FromMilliseconds(SpellsDelays[spellname]))
                     {
@@ -444,7 +407,7 @@ namespace Project_E.Lib.Skills
                 {
                     if (counter % 5 == 0)
                         ChargeSpell(spellname, ref autocast);
-                    ccast(spellname, target, bandage, Sacrafire);
+                    UO.Cast(spellname, target);
                     start = DateTime.Now;
                     while ((DateTime.Now - start) < TimeSpan.FromMilliseconds(SpellsDelays[spellname]))
                     {
