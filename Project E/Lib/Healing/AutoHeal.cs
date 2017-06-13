@@ -42,6 +42,7 @@ namespace Project_E.Lib.Healing
             Settings = settings;
             PatientMinHits = PatientMinHP;
             SelfHarm = selfHarm;
+            ev.OnBandageDone += Ev_OnBandageDone;
         }
 
         private void GetStatuses()
@@ -59,7 +60,7 @@ namespace Project_E.Lib.Healing
             bw.WorkerSupportsCancellation = true;
             bw.DoWork += Bw_DoWork;
 
-            ev.OnBandageDone += Ev_OnBandageDone;
+
             ev.OnCrystalChange += Ev_OnCrystalOn;
             ev.OnMusicDone += Ev_OnMusicDone;
             ev.OnParalyze += Ev_OnParalyze;
@@ -76,7 +77,7 @@ namespace Project_E.Lib.Healing
                 bw.CancelAsync();
                 bw.DoWork -= Bw_DoWork;
             }
-            ev.OnBandageDone -= Ev_OnBandageDone;
+
             ev.OnCrystalChange -= Ev_OnCrystalOn;
             ev.OnMusicDone -= Ev_OnMusicDone;
             ev.OnParalyze -= Ev_OnParalyze;
@@ -118,7 +119,7 @@ namespace Project_E.Lib.Healing
             Patient temp;
             while (!bw.CancellationPending)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(200);
                 if (Paralyze && Settings.AutoHarm)
                 {
                     SelfHarm(false);
@@ -161,7 +162,7 @@ namespace Project_E.Lib.Healing
 
         private void Bandage(Patient temp)
         {
-            if (temp.Character.Hits > PatientMinHits || temp.Character.Hits > 100 || temp.Character.Hits < 1 || temp.Character.Distance > 6) return;
+            if (!BandageDone || temp.Character.Hits > PatientMinHits || temp.Character.Hits > 100 || temp.Character.Hits < 1 || temp.Character.Distance > 6) return;
             BandageDone = false;
             StartBandage = DateTime.Now;
             if (!CrystalOn) UO.Say(CrystalCmd);
@@ -180,6 +181,8 @@ namespace Project_E.Lib.Healing
 
         public void Bandage()
         {
+            if (!BandageDone || World.Player.Hits==World.Player.MaxHits) return;
+
             BandageDone = false;
             StartBandage = DateTime.Now;
             UO.Say(HealCmd + "15");
@@ -187,7 +190,7 @@ namespace Project_E.Lib.Healing
             {
                 Weapon.Equip();
             }
-            GetStatuses();
+            if(Running)GetStatuses();
         }
 
         public void Res()

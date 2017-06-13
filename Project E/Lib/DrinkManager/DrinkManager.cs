@@ -141,7 +141,7 @@ namespace Project_E.Lib.DrinkManager
                         }
                     }
                 }
-
+                Thread.Sleep(50);
             }
             return PotionsCount;
         }

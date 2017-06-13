@@ -269,5 +269,16 @@ namespace Project_E
 
         }
 
+        [Command, BlockMultipleExecutions]
+        public void autopetheal()
+        {
+            Main.Instance.SK.autoVet();
+        }
+
+        [Command, BlockMultipleExecutions]
+        public void petheal()
+        {
+            Main.Instance.SK.Vet();
+        }
     }
 }

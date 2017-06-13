@@ -9,6 +9,7 @@ using Project_E.Lib.GameWindow;
 using Project_E.Lib.Healing;
 using Project_E.Lib.Runes;
 using Project_E.Lib.Skills;
+using Project_E.Lib.SpellManager;
 using Project_E.Lib.WallManager;
 using Project_E.Lib.WeaponsSet;
 using System;
@@ -16,7 +17,6 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-// TODO SpellManager
 // TODO Resource manager
 namespace Project_E
 {
@@ -39,6 +39,7 @@ namespace Project_E
         public SettingsGUI SGUI;
         public AutoHeal AH;
         public Autolot Autolot;
+        public SpellManager SM;
 
 
         #endregion
@@ -73,8 +74,9 @@ namespace Project_E
         {
             if (World.Player.Name == null) return;
             Wait2CharLoad.Stop();
+            setEQ();
 
-            #region Declare Classes
+            #region Initialize Classes
             DM = new DrinkManager();
             WM = new WallManager();
 
@@ -83,6 +85,7 @@ namespace Project_E
             TRG = new Targeting();
             WT = new Watcher();
 
+
             XmlSerializeHelper<SettingsGUI>.Load(World.Player.Name, out SGUI, true);
             if (SGUI == null) SGUI = new SettingsGUI();
             SK = new Skills(SGUI);
@@ -90,9 +93,11 @@ namespace Project_E
             // TODO AH - nutno predavat tolik atrb ?!
             AH = new AutoHeal(SGUI.HealedPlayers, SGUI.KlerikShaman == 0 ? ".heal" : ".samheal",
                 SGUI.KlerikShaman == 0 ? ".enlightment" : ".improvement", SGUI.Weapons.ActualWeapon, WT, SGUI, SGUI.KlerikShaman == 0 ? 86 : 90,SK.HarmSelf);
+            SM = new SpellManager(SGUI, AB.Sacrafire,AH.Bandage);
             EreborGUI = EreborGUI.LastInstance;
             #endregion
 
+            #region GUI Init-Refresh
             // Initialize GUI Values;
             EreborGUI.BeginInvoke(new MethodInvoker(delegate
             {
@@ -155,7 +160,7 @@ namespace Project_E
 
 
             }));
-
+            #endregion
 
             // Register Events
             EreborGUI.OnChanged += EreborGUI_OnChanged;
@@ -164,13 +169,21 @@ namespace Project_E
             World.Player.Changed += Player_Changed;
             WT.OnSuccessHit += WT_OnSuccessHit;
             WT.HiddenChanged += WT_HiddenChanged;
-
-
+         
 
             UO.PrintInformation("Loaded");
             Wait2CharLoad = null;
         }
 
+        private void setEQ()
+        {
+            UO.Wait(800);
+            World.Player.Click();
+            UO.Wait(800);
+            World.Player.WaitTarget();
+            UO.Say(".setequip15");
+
+        }
         private void WT_HiddenChanged(object sender, Watcher.HiddenChangedArgs e)
         {
             if(!e.State)
@@ -329,7 +342,10 @@ namespace Project_E
                         SetForegroundWindow(Client.HWND);
                         pois.Click();
                         UO.Wait(200);
-                        EreborGUI.Poison.Text = pois.Name;
+                        EreborGUI.Invoke(new MethodInvoker(delegate
+                        {
+                            EreborGUI.Poison.Text = pois.Name;
+                        }));
                         SGUI.Poison = pois.Color;
                         break;
                     case "btn_0":

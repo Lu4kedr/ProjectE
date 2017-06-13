@@ -50,12 +50,13 @@ namespace Project_E.Lib.WallManager
                         }
                     }
                     else Collection.Remove(w);
+                    Thread.Sleep(100);
                 }
 
                 while (DateTime.Now - delayedPrint < TimeSpan.FromSeconds(5))
                 {
                     if (bw.CancellationPending)return;
-                    Thread.Sleep(100);
+                    Thread.Sleep(200);
                 }
             }
         }

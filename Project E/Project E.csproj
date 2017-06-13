@@ -81,6 +81,7 @@
     <Compile Include="Lib\ScreenCapture.cs" />
     <Compile Include="Lib\Skills\Skills.cs" />
     <Compile Include="Lib\Skills\Tracking.cs" />
+    <Compile Include="Lib\SpellManager\SpellManager.cs" />
     <Compile Include="Lib\SwitcheableHotkeys.cs" />
     <Compile Include="Lib\Targeting.cs" />
     <Compile Include="Lib\TreasureMap.cs" />
