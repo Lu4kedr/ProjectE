@@ -69,7 +69,7 @@ namespace Project_E.Lib
 
         #region Voodoo
 
-
+        // TODO autoVOooDOO dung and home
 
         enum VoodooState
         {

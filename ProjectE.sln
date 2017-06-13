@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project E", "Project E\Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UOMap", "UOMap\UOMap.csproj", "{FE70DBD2-B645-4CD0-8D74-F9294F17E5D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mining", "Mining\Mining.csproj", "{F477B15A-7B4B-40C6-BB8A-98944AC7FFE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FE70DBD2-B645-4CD0-8D74-F9294F17E5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE70DBD2-B645-4CD0-8D74-F9294F17E5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE70DBD2-B645-4CD0-8D74-F9294F17E5D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F477B15A-7B4B-40C6-BB8A-98944AC7FFE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F477B15A-7B4B-40C6-BB8A-98944AC7FFE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F477B15A-7B4B-40C6-BB8A-98944AC7FFE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F477B15A-7B4B-40C6-BB8A-98944AC7FFE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
