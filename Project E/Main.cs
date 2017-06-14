@@ -173,6 +173,25 @@ namespace Project_E
 
             UO.PrintInformation("Loaded");
             Wait2CharLoad = null;
+            Core.Window.FormClosing += Window_FormClosing;
+            Core.Disconnected += Core_Disconnected;
+        }
+
+        private void Core_Disconnected(object sender, EventArgs e)
+        {
+            XmlSerializeHelper<SettingsGUI>.Save(World.Player.Name, SGUI, true);
+
+            XmlSerializeHelper<GameWIndoSizeDATA>.Save("WindowSize", GWSDATA, false);
+            Core.Window.FormClosing -= Window_FormClosing;
+        }
+
+        private void Window_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            XmlSerializeHelper<SettingsGUI>.Save(World.Player.Name, SGUI, true);
+
+            XmlSerializeHelper<GameWIndoSizeDATA>.Save("WindowSize", GWSDATA, false);
+
+
         }
 
         private void setEQ()
@@ -265,6 +284,8 @@ namespace Project_E
         }
 
         private short LastHitDecrease;
+
+
         private void WT_HitsChanged(object sender, Watcher.HitsChangedArgs e)
         {
             if (!e.gain) LastHitDecrease = e.amount;
@@ -802,9 +823,9 @@ namespace Project_E
             // Save to xml on change
             // TODO Save btn
 
-            XmlSerializeHelper<SettingsGUI>.Save(World.Player.Name, SGUI, true);
+           // XmlSerializeHelper<SettingsGUI>.Save(World.Player.Name, SGUI, true);
 
-            XmlSerializeHelper<GameWIndoSizeDATA>.Save("WindowSize", GWSDATA, false);
+          //  XmlSerializeHelper<GameWIndoSizeDATA>.Save("WindowSize", GWSDATA, false);
 
 
         }

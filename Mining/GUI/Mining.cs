@@ -7,12 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Phoenix;
+using Project_E;
 
 namespace Mining.GUI
 {
     [PhoenixWindowTabPage("Mining")]
     public partial class Mining : UserControl
     {
+        Mine ins;
+        System.Timers.Timer t;
         public static Mining LastInstance;
         public event EventHandler OnCHanged;
 
@@ -60,10 +63,19 @@ namespace Mining.GUI
             numAda.ValueChanged += Changed;
             numObs.ValueChanged += Changed;
 
-            
 
 
+            t = new System.Timers.Timer(2000);
+            t.Elapsed += T_Elapsed;
+            t.Start();
 
+        }
+
+        private void T_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            t.Elapsed -= T_Elapsed;
+            t.Stop();
+            ins = Mine.Instance;
         }
 
         private void Changed(object sender, EventArgs e)
@@ -235,6 +247,18 @@ namespace Mining.GUI
 
         // Check Boxes
 
+        public bool KryskaTrollAlarm
+        {
+            get
+            {
+                return chb_KryskaTrollAlarm.Checked;
+            }
+            set
+            {
+                chb_KryskaTrollAlarm.Checked = value;
+            }
+        }
+
         public bool DropCopper
         {
             get
@@ -368,7 +392,5 @@ namespace Mining.GUI
         }
 
 
-
-  
     }
 }

@@ -87,6 +87,7 @@
             this.btn_GemBox = new System.Windows.Forms.Button();
             this.btn_OreBox = new System.Windows.Forms.Button();
             this.btn_ResourceBox = new System.Windows.Forms.Button();
+            this.chb_KryskaTrollAlarm = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -155,9 +156,9 @@
             this.lbl_TSilicon.AutoSize = true;
             this.lbl_TSilicon.Location = new System.Drawing.Point(75, 38);
             this.lbl_TSilicon.Name = "lbl_TSilicon";
-            this.lbl_TSilicon.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TSilicon.Size = new System.Drawing.Size(16, 17);
             this.lbl_TSilicon.TabIndex = 14;
-            this.lbl_TSilicon.Text = "XXXX";
+            this.lbl_TSilicon.Text = "0";
             // 
             // label13
             // 
@@ -173,9 +174,9 @@
             this.lbl_TAdamantium.AutoSize = true;
             this.lbl_TAdamantium.Location = new System.Drawing.Point(360, 38);
             this.lbl_TAdamantium.Name = "lbl_TAdamantium";
-            this.lbl_TAdamantium.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TAdamantium.Size = new System.Drawing.Size(16, 17);
             this.lbl_TAdamantium.TabIndex = 12;
-            this.lbl_TAdamantium.Text = "XXXX";
+            this.lbl_TAdamantium.Text = "0";
             // 
             // label17
             // 
@@ -191,9 +192,9 @@
             this.lbl_TObsidian.AutoSize = true;
             this.lbl_TObsidian.Location = new System.Drawing.Point(360, 18);
             this.lbl_TObsidian.Name = "lbl_TObsidian";
-            this.lbl_TObsidian.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TObsidian.Size = new System.Drawing.Size(16, 17);
             this.lbl_TObsidian.TabIndex = 10;
-            this.lbl_TObsidian.Text = "XXXX";
+            this.lbl_TObsidian.Text = "0";
             // 
             // label19
             // 
@@ -209,9 +210,9 @@
             this.lbl_TValorite.AutoSize = true;
             this.lbl_TValorite.Location = new System.Drawing.Point(210, 38);
             this.lbl_TValorite.Name = "lbl_TValorite";
-            this.lbl_TValorite.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TValorite.Size = new System.Drawing.Size(16, 17);
             this.lbl_TValorite.TabIndex = 8;
-            this.lbl_TValorite.Text = "XXXX";
+            this.lbl_TValorite.Text = "0";
             // 
             // label21
             // 
@@ -227,9 +228,9 @@
             this.lbl_TVerite.AutoSize = true;
             this.lbl_TVerite.Location = new System.Drawing.Point(210, 18);
             this.lbl_TVerite.Name = "lbl_TVerite";
-            this.lbl_TVerite.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TVerite.Size = new System.Drawing.Size(16, 17);
             this.lbl_TVerite.TabIndex = 6;
-            this.lbl_TVerite.Text = "XXXX";
+            this.lbl_TVerite.Text = "0";
             // 
             // label23
             // 
@@ -245,9 +246,9 @@
             this.lbl_TIron.AutoSize = true;
             this.lbl_TIron.Location = new System.Drawing.Point(75, 18);
             this.lbl_TIron.Name = "lbl_TIron";
-            this.lbl_TIron.Size = new System.Drawing.Size(44, 17);
+            this.lbl_TIron.Size = new System.Drawing.Size(16, 17);
             this.lbl_TIron.TabIndex = 4;
-            this.lbl_TIron.Text = "XXXX";
+            this.lbl_TIron.Text = "0";
             // 
             // label25
             // 
@@ -316,9 +317,9 @@
             this.lbl_ASilicon.AutoSize = true;
             this.lbl_ASilicon.Location = new System.Drawing.Point(75, 38);
             this.lbl_ASilicon.Name = "lbl_ASilicon";
-            this.lbl_ASilicon.Size = new System.Drawing.Size(44, 17);
+            this.lbl_ASilicon.Size = new System.Drawing.Size(16, 17);
             this.lbl_ASilicon.TabIndex = 14;
-            this.lbl_ASilicon.Text = "XXXX";
+            this.lbl_ASilicon.Text = "0";
             // 
             // label16
             // 
@@ -334,9 +335,9 @@
             this.lbl_AAdamantium.AutoSize = true;
             this.lbl_AAdamantium.Location = new System.Drawing.Point(360, 38);
             this.lbl_AAdamantium.Name = "lbl_AAdamantium";
-            this.lbl_AAdamantium.Size = new System.Drawing.Size(44, 17);
+            this.lbl_AAdamantium.Size = new System.Drawing.Size(16, 17);
             this.lbl_AAdamantium.TabIndex = 12;
-            this.lbl_AAdamantium.Text = "XXXX";
+            this.lbl_AAdamantium.Text = "0";
             // 
             // label12
             // 
@@ -352,9 +353,9 @@
             this.lbl_AObsidian.AutoSize = true;
             this.lbl_AObsidian.Location = new System.Drawing.Point(360, 18);
             this.lbl_AObsidian.Name = "lbl_AObsidian";
-            this.lbl_AObsidian.Size = new System.Drawing.Size(44, 17);
+            this.lbl_AObsidian.Size = new System.Drawing.Size(16, 17);
             this.lbl_AObsidian.TabIndex = 10;
-            this.lbl_AObsidian.Text = "XXXX";
+            this.lbl_AObsidian.Text = "0";
             // 
             // label10
             // 
@@ -370,9 +371,9 @@
             this.lbl_AValorite.AutoSize = true;
             this.lbl_AValorite.Location = new System.Drawing.Point(210, 38);
             this.lbl_AValorite.Name = "lbl_AValorite";
-            this.lbl_AValorite.Size = new System.Drawing.Size(44, 17);
+            this.lbl_AValorite.Size = new System.Drawing.Size(16, 17);
             this.lbl_AValorite.TabIndex = 8;
-            this.lbl_AValorite.Text = "XXXX";
+            this.lbl_AValorite.Text = "0";
             // 
             // label8
             // 
@@ -388,9 +389,9 @@
             this.lbl_AVerite.AutoSize = true;
             this.lbl_AVerite.Location = new System.Drawing.Point(210, 18);
             this.lbl_AVerite.Name = "lbl_AVerite";
-            this.lbl_AVerite.Size = new System.Drawing.Size(44, 17);
+            this.lbl_AVerite.Size = new System.Drawing.Size(16, 17);
             this.lbl_AVerite.TabIndex = 6;
-            this.lbl_AVerite.Text = "XXXX";
+            this.lbl_AVerite.Text = "0";
             // 
             // label6
             // 
@@ -406,9 +407,9 @@
             this.lbl_AIron.AutoSize = true;
             this.lbl_AIron.Location = new System.Drawing.Point(75, 18);
             this.lbl_AIron.Name = "lbl_AIron";
-            this.lbl_AIron.Size = new System.Drawing.Size(44, 17);
+            this.lbl_AIron.Size = new System.Drawing.Size(16, 17);
             this.lbl_AIron.TabIndex = 4;
-            this.lbl_AIron.Text = "XXXX";
+            this.lbl_AIron.Text = "0";
             // 
             // label4
             // 
@@ -561,6 +562,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.chb_KryskaTrollAlarm);
             this.groupBox4.Controls.Add(this.tb_FightSay);
             this.groupBox4.Controls.Add(this.label7);
             this.groupBox4.Controls.Add(this.btn_SetWeapon);
@@ -582,7 +584,7 @@
             // 
             // tb_FightSay
             // 
-            this.tb_FightSay.Location = new System.Drawing.Point(88, 193);
+            this.tb_FightSay.Location = new System.Drawing.Point(88, 179);
             this.tb_FightSay.Name = "tb_FightSay";
             this.tb_FightSay.Size = new System.Drawing.Size(169, 22);
             this.tb_FightSay.TabIndex = 13;
@@ -590,7 +592,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(7, 196);
+            this.label7.Location = new System.Drawing.Point(7, 182);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(75, 17);
             this.label7.TabIndex = 12;
@@ -598,7 +600,7 @@
             // 
             // btn_SetWeapon
             // 
-            this.btn_SetWeapon.Location = new System.Drawing.Point(146, 149);
+            this.btn_SetWeapon.Location = new System.Drawing.Point(146, 136);
             this.btn_SetWeapon.Name = "btn_SetWeapon";
             this.btn_SetWeapon.Size = new System.Drawing.Size(111, 32);
             this.btn_SetWeapon.TabIndex = 11;
@@ -608,7 +610,7 @@
             // chb_AutoRemoveRocks
             // 
             this.chb_AutoRemoveRocks.AutoSize = true;
-            this.chb_AutoRemoveRocks.Location = new System.Drawing.Point(19, 223);
+            this.chb_AutoRemoveRocks.Location = new System.Drawing.Point(19, 209);
             this.chb_AutoRemoveRocks.Name = "chb_AutoRemoveRocks";
             this.chb_AutoRemoveRocks.Size = new System.Drawing.Size(153, 21);
             this.chb_AutoRemoveRocks.TabIndex = 10;
@@ -618,7 +620,7 @@
             // chb_UseCrystal
             // 
             this.chb_UseCrystal.AutoSize = true;
-            this.chb_UseCrystal.Location = new System.Drawing.Point(19, 250);
+            this.chb_UseCrystal.Location = new System.Drawing.Point(19, 259);
             this.chb_UseCrystal.Name = "chb_UseCrystal";
             this.chb_UseCrystal.Size = new System.Drawing.Size(102, 21);
             this.chb_UseCrystal.TabIndex = 9;
@@ -630,14 +632,14 @@
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel3.Controls.Add(this.btn_SelectMine);
             this.panel3.Controls.Add(this.btn_StartMine);
-            this.panel3.Location = new System.Drawing.Point(0, 278);
+            this.panel3.Location = new System.Drawing.Point(5, 282);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(263, 46);
+            this.panel3.Size = new System.Drawing.Size(257, 46);
             this.panel3.TabIndex = 8;
             // 
             // btn_SelectMine
             // 
-            this.btn_SelectMine.Location = new System.Drawing.Point(9, 7);
+            this.btn_SelectMine.Location = new System.Drawing.Point(4, 7);
             this.btn_SelectMine.Name = "btn_SelectMine";
             this.btn_SelectMine.Size = new System.Drawing.Size(111, 32);
             this.btn_SelectMine.TabIndex = 7;
@@ -647,7 +649,7 @@
             // btn_StartMine
             // 
             this.btn_StartMine.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btn_StartMine.Location = new System.Drawing.Point(145, 7);
+            this.btn_StartMine.Location = new System.Drawing.Point(140, 7);
             this.btn_StartMine.Name = "btn_StartMine";
             this.btn_StartMine.Size = new System.Drawing.Size(111, 32);
             this.btn_StartMine.TabIndex = 6;
@@ -656,7 +658,7 @@
             // 
             // btn_SetDoor
             // 
-            this.btn_SetDoor.Location = new System.Drawing.Point(10, 149);
+            this.btn_SetDoor.Location = new System.Drawing.Point(10, 136);
             this.btn_SetDoor.Name = "btn_SetDoor";
             this.btn_SetDoor.Size = new System.Drawing.Size(111, 32);
             this.btn_SetDoor.TabIndex = 5;
@@ -665,7 +667,7 @@
             // 
             // btn_RecallPos
             // 
-            this.btn_RecallPos.Location = new System.Drawing.Point(146, 111);
+            this.btn_RecallPos.Location = new System.Drawing.Point(146, 98);
             this.btn_RecallPos.Name = "btn_RecallPos";
             this.btn_RecallPos.Size = new System.Drawing.Size(111, 32);
             this.btn_RecallPos.TabIndex = 4;
@@ -674,7 +676,7 @@
             // 
             // btn_BankPos
             // 
-            this.btn_BankPos.Location = new System.Drawing.Point(10, 111);
+            this.btn_BankPos.Location = new System.Drawing.Point(10, 98);
             this.btn_BankPos.Name = "btn_BankPos";
             this.btn_BankPos.Size = new System.Drawing.Size(111, 32);
             this.btn_BankPos.TabIndex = 3;
@@ -707,6 +709,18 @@
             this.btn_ResourceBox.TabIndex = 0;
             this.btn_ResourceBox.Text = "Resources Box";
             this.btn_ResourceBox.UseVisualStyleBackColor = true;
+            // 
+            // chb_KryskaTrollAlarm
+            // 
+            this.chb_KryskaTrollAlarm.AutoSize = true;
+            this.chb_KryskaTrollAlarm.Checked = true;
+            this.chb_KryskaTrollAlarm.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chb_KryskaTrollAlarm.Location = new System.Drawing.Point(19, 234);
+            this.chb_KryskaTrollAlarm.Name = "chb_KryskaTrollAlarm";
+            this.chb_KryskaTrollAlarm.Size = new System.Drawing.Size(145, 21);
+            this.chb_KryskaTrollAlarm.TabIndex = 14;
+            this.chb_KryskaTrollAlarm.Text = "Kryska/Troll Alarm";
+            this.chb_KryskaTrollAlarm.UseVisualStyleBackColor = true;
             // 
             // Mining
             // 
@@ -798,5 +812,6 @@
         private System.Windows.Forms.Button btn_SetWeapon;
         private System.Windows.Forms.TextBox tb_FightSay;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox chb_KryskaTrollAlarm;
     }
 }

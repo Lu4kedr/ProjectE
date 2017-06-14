@@ -33,27 +33,8 @@ namespace Mining
 
         public void Kill()
         {
-            Journal.Clear();
             Enemy.Click();
             UO.Wait(200);
-            foreach (Graphic g in Humanoid)
-            {
-                if (Enemy.Model == g)
-                {
-                    Run(true);
-                    return;
-                }
-
-            }
-            foreach (string s in TopMonster)
-            {
-                if (Enemy.Name.ToLower().Contains(s))
-
-                {
-                    Run(false);
-                    return;
-                }
-            }
             try
             {
                 Core.RegisterServerMessageCallback(0x6E, onStoodUp);
@@ -82,7 +63,7 @@ namespace Mining
                         Weapon.Equip();
                         try
                         {
-                            UO.Attack(Enemy);
+                            //UO.Attack(Enemy);
                         }
                         catch { }
                    }
@@ -91,7 +72,7 @@ namespace Mining
 
                 MoveTo(ActualPosition.X, ActualPosition.Y);
             }
-            catch (Exception ex) { UO.PrintError(ex.InnerException.Message); }
+            catch (Exception ex) { UO.PrintError(ex.Message); }
             finally
             {
                 Core.UnregisterServerMessageCallback(0x6E, onStoodUp);
@@ -101,40 +82,6 @@ namespace Mining
         }
 
 
-        private void Run(bool recall)
-        {
-            DateTime drink;
-            while(true)
-            {
-                if(Enemy.Distance>5)
-                {
-                    UO.Say(".potioninvis");
-                    drink = DateTime.Now;
-                    if (recall)
-                    {
-                        Recall(0);
-                        UO.TerminateAll();
-                    }
-                    else
-                    {
-                        UO.Wait(300);
-                        if(!World.Player.Hidden)
-                        {
-                            while(!World.Player.Hidden)
-                            {
-                                MoveXfield(10);
-                                if(DateTime.Now-drink>TimeSpan.FromSeconds(21) && Enemy.Distance>3)
-                                {
-                                    UO.Say(".potioninvis");
-                                    UO.TerminateAll();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
 
 
         CallbackResult onStoodUp(byte[] data, CallbackResult prev)

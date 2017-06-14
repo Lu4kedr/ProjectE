@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Battle.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="EnemyAppearedArgs.cs" />
     <Compile Include="GUI\Mining.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -58,6 +61,7 @@
     <Compile Include="Mine.cs" />
     <Compile Include="MineFIeld.cs" />
     <Compile Include="MineFieldState.cs" />
+    <Compile Include="OnOreAddedArgs.cs" />
     <Compile Include="PathFinding\Movement.cs" />
     <Compile Include="PathFinding\Node.cs" />
     <Compile Include="PathFinding\NodeState.cs" />

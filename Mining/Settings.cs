@@ -39,6 +39,25 @@ namespace Mining
             UseCrystal = true;
         }
 
+        public bool KryskaTrollAlarm
+        {
+            get
+            {
+                bool tmp = true;
+                I.Invoke(new MethodInvoker(delegate
+                {
+                    tmp = I.KryskaTrollAlarm;
+                }));
+                return tmp;
+            }
+            set
+            {
+                I.Invoke(new MethodInvoker(delegate
+                {
+                    I.KryskaTrollAlarm = value;
+                }));
+            }
+        }
         public int ActualMapIndex
         {
             get;set;
@@ -49,7 +68,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.AIron ?? "0");
                 }));
@@ -57,7 +76,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AIron = value.ToString();
                 }));
@@ -69,7 +88,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.ASilicon ?? "0");
                 }));
@@ -77,7 +96,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.ASilicon = value.ToString();
                 }));
@@ -89,7 +108,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.AVerite ?? "0");
                 }));
@@ -97,7 +116,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AVerite = value.ToString();
                 }));
@@ -109,7 +128,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.AValorite ?? "0");
                 }));
@@ -117,7 +136,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AValorite = value.ToString();
                 }));
@@ -129,7 +148,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.AObsidian ?? "0");
                 }));
@@ -137,7 +156,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AObsidian = value.ToString();
                 }));
@@ -149,7 +168,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.AAdamantium ?? "0");
                 }));
@@ -157,7 +176,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AAdamantium = value.ToString();
                 }));
@@ -170,7 +189,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TIron ?? "0");
                 }));
@@ -178,7 +197,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TIron = value.ToString();
                 }));
@@ -190,7 +209,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TVerite ?? "0");
                 }));
@@ -198,7 +217,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TVerite = value.ToString();
                 }));
@@ -210,7 +229,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TValorite ?? "0");
                 }));
@@ -218,7 +237,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TValorite = value.ToString();
                 }));
@@ -230,7 +249,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TObsidian ?? "0");
                 }));
@@ -238,7 +257,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TObsidian = value.ToString();
                 }));
@@ -250,7 +269,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TAdamantium ?? "0");
                 }));
@@ -258,7 +277,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TAdamantium = value.ToString();
                 }));
@@ -270,7 +289,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = int.Parse(I.TSilicon ?? "0");
                 }));
@@ -278,7 +297,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.TSilicon = value.ToString();
                 }));
@@ -291,7 +310,7 @@ namespace Mining
             get
             {
                 int tmp=0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp=(int) I.MaxObs;
                 }));
@@ -300,7 +319,7 @@ namespace Mining
 
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.MaxObs=value;
                 }));
@@ -312,7 +331,7 @@ namespace Mining
             get
             {
                 int tmp = 0;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = (int)I.MaxAda;
                 }));
@@ -321,7 +340,7 @@ namespace Mining
 
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.MaxAda = value;
                 }));
@@ -333,7 +352,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.DropCopper;
                 }));
@@ -341,7 +360,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.DropCopper = value;
                 }));
@@ -353,7 +372,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.SkipCopper;
                 }));
@@ -361,7 +380,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.SkipCopper = value;
                 }));
@@ -373,7 +392,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.SkipIron;
                 }));
@@ -381,7 +400,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.SkipIron = value;
                 }));
@@ -393,7 +412,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.SkipVerite;
                 }));
@@ -401,7 +420,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.SkipVerite = value;
                 }));
@@ -413,7 +432,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.SkipSilicon;
                 }));
@@ -421,7 +440,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.SkipSilicon = value;
                 }));
@@ -433,7 +452,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.AutoRemoveRocks;
                 }));
@@ -441,7 +460,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.AutoRemoveRocks = value;
                 }));
@@ -453,7 +472,7 @@ namespace Mining
             get
             {
                 bool tmp = false;
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.UseCrystal;
                 }));
@@ -461,7 +480,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.UseCrystal = value;
                 }));
@@ -473,7 +492,7 @@ namespace Mining
             get
             {
                 string tmp = "";
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     tmp = I.FightSay;
                 }));
@@ -481,7 +500,7 @@ namespace Mining
             }
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.FightSay = value;
                 }));
@@ -489,14 +508,14 @@ namespace Mining
         }
 
         [XmlIgnore]
-        public ListBox Mines
+        public int Mines_SelectedIndex
         {
             get
             {
-                ListBox tmp = null;
-                I.BeginInvoke(new MethodInvoker(delegate
+                int tmp = 0;
+                I.Invoke(new MethodInvoker(delegate
                 {
-                    tmp = I.Mines;
+                    tmp = I.Mines.SelectedIndex;
                 }));
                 return tmp;
             }
@@ -507,7 +526,7 @@ namespace Mining
         {
             set
             {
-                I.BeginInvoke(new MethodInvoker(delegate
+                I.Invoke(new MethodInvoker(delegate
                 {
                     I.WeightProgress.Maximum = World.Player.Strenght * 4 + 15;
                     I.WeightProgress.Value = value;
