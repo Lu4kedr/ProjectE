@@ -33,15 +33,17 @@ namespace Project_E
         {
             if (HealON)
             {
-                Main.Instance.AH.Stop();
                 HealON = false;
                 UO.PrintError("Heal Off");
+                Main.Instance.AH.Stop();
+
             }
             else
             {
-                Main.Instance.AH.Start();
                 HealON = true;
                 UO.PrintInformation("Heal On");
+                Main.Instance.AH.Start();
+
             }
         }
 

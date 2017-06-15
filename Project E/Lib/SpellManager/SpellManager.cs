@@ -12,16 +12,15 @@ using System.Threading;
 
 namespace Project_E.Lib.SpellManager
 {
+    public delegate void DecodedSpell();
     public class SpellManager
     {
         public event EventHandler<OnSpellDoneArgs> OnSpellDone;
         private byte[] LastData;
-        private bool SpellDecoded = false;
         private SettingsGUI Settings;
         DateTime StartCast=DateTime.Now;
         Action<Action> Sacrafire;
         Action Bandage;
-        BackgroundWorker bw;
         public string LastSpell { get; set; }
         readonly Dictionary<string, int> SpellsDelays = new Dictionary<string, int> {
             { "Fireball", 2060 }, { "Flame", 4100 }, { "Meteor", 6750 }, { "Lightning", 3550 },
@@ -40,7 +39,7 @@ namespace Project_E.Lib.SpellManager
             { "37", 3500 },         // Mindblast
             { "44", 3300 }          // Invis
         };
-        private bool Fizz;
+
 
         public SpellManager(SettingsGUI settings, Action<Action> sacrafire, Action bandage)
         {
@@ -50,46 +49,19 @@ namespace Project_E.Lib.SpellManager
             Settings = settings;
             Sacrafire = sacrafire;
             Bandage = bandage;
-            bw = new BackgroundWorker();
-            bw.DoWork += Bw_DoWork;
-            bw.WorkerSupportsCancellation = true;
-            bw.RunWorkerAsync();
+
         }
 
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+
+        private void DecodedSpell()
         {
-            while(!bw.CancellationPending)
-            {
-                Thread.Sleep(200);
-                if(SpellDecoded)
-                {
-                    SpellDecoded = false;
+            if (Settings.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Settings.Sacrafire ?? "40")))
+                Sacrafire(Bandage);
+            if (World.Player.Hits < (World.Player.MaxHits - 7))
+                Bandage();
 
-                    if (Settings.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Settings.Sacrafire ?? "40")))
-                        Sacrafire(Bandage);
-                    if (World.Player.Hits < (World.Player.MaxHits - 7))
-                        Bandage();
-
-                    Core.SendToServer(LastData);
-                    StartCast = DateTime.Now;
-                }
-                if(!Fizz && LastSpell!=null)
-                {
-                    if ((DateTime.Now - StartCast).TotalMilliseconds > SpellDelays[LastSpell])
-                    {
-                        LastSpell = null;
-                        EventHandler<OnSpellDoneArgs> temp = OnSpellDone;
-                        if (temp != null)
-                        {
-                            foreach (EventHandler<OnSpellDoneArgs> ev in temp.GetInvocationList())
-                            {
-                                ev.BeginInvoke(this, new OnSpellDoneArgs() { Fizzed = false, Spell = LastSpell }, null, null);
-                            }
-                        }
-                    }
-                }
-
-            }
+            Core.SendToServer(LastData);
+            StartCast = DateTime.Now;
         }
 
         public CallbackResult SpellReq(byte[]data , CallbackResult Prev)//0x12
@@ -103,11 +75,11 @@ namespace Project_E.Lib.SpellManager
                 spell= pr.ReadAnsiString(length-4);
                 if (SpellDelays.ContainsKey(spell))
                 {
-                    // dict spells
-                    Fizz = false;
-                    SpellDecoded = true;
+                    
                     LastSpell = spell;
                     LastData = data;
+                    DecodedSpell ds = new DecodedSpell(DecodedSpell);
+                    ds.BeginInvoke(null, null);
                     return CallbackResult.Eat;
                 }
             }
@@ -121,11 +93,11 @@ namespace Project_E.Lib.SpellManager
             UnicodeSpeechRequest a = new UnicodeSpeechRequest(data);
             if(SpellDelays.ContainsKey(a.Text))
             {
-                // necro,frost
-                Fizz = false;
-                SpellDecoded = true;
+
                 LastSpell = a.Text;
                 LastData = data;
+                DecodedSpell ds = new DecodedSpell(DecodedSpell);
+                ds.BeginInvoke(null, null);
                 return CallbackResult.Eat;
             }
             return CallbackResult.Normal;
@@ -136,7 +108,6 @@ namespace Project_E.Lib.SpellManager
             AsciiSpeech a = new AsciiSpeech(data);
             if(a.Text.ToLowerInvariant().Contains("kouzlo se nezdarilo."))
             {
-                Fizz = true;
                 EventHandler<OnSpellDoneArgs> temp = OnSpellDone;
                 if( temp!=null)
                 {

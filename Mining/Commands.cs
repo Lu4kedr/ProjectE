@@ -1,4 +1,5 @@
 ﻿using Phoenix;
+using Phoenix.WorldData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,17 @@ namespace Mining
         {
             Mine.Instance.Stop();
         }
+
+        [Command]
+        public void vypis()
+        {
+            foreach(UOItem it in World.Player.Layers)
+            {
+                it.Click();
+                UO.Wait(200);
+                Notepad.WriteLine(it.Name);
+            }
+        }
+
     }
 }

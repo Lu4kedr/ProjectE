@@ -112,7 +112,7 @@ namespace Project_E.Lib.DrinkManager
                     }
                 }
                 else Annouced = false;
-                Thread.Sleep(400);
+                Thread.Sleep(500);
                 PotionsCount = CountPotion();
             }
         }

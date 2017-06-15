@@ -11,7 +11,7 @@ namespace Mining
 {
 	public class Check
 	{
-		public event EventHandler<EnemyAppearedArgs> EnemyAppeared;
+
 		public event EventHandler OnAfk;
 		public event EventHandler OnNoOre;
 		public event EventHandler OnSkillDelay;
@@ -21,11 +21,10 @@ namespace Mining
 
 		BackgroundWorker bw;
 		readonly string[] calls = { "You put ", "Nevykopala jsi nic ","Odstranila jsi zaval!", "Odstranil jsi zaval!","Nepovedlo se ti odstranit zaval.", "Jeste nemuzes pouzit skill",                  // 0-4, 5
-								   " There is no ore", "too far", "Try mining","Tam nedosahnes.",                    // 6-9
-									"afk", "AFK", "kontrola", "GM", "gm", "Je spatne videt." };     // 10-15
+								   "There is no ore ", "too far", "Try mining","Tam nedosahnes.","Jsi prilis daleko.",                    // 6-10
+									"afk", "AFK", "kontrola", "GM", "gm", "Je spatne videt." };     // 11-16
 
-		List<string> TopMonster = new List<string>() { "golem", "spirit" };
-		Graphic[] Humanoid = { 0x0191, 0x0190 };
+
 
 
 
@@ -43,7 +42,7 @@ namespace Mining
 		{
 			EventHandler temp;
 			// Check AFK
-			if (Journal.Contains(true, calls[10], calls[11], calls[12], calls[13], calls[14]))
+			if (Journal.Contains(true, calls[15], calls[11], calls[12], calls[13], calls[14]))
 			{
 				temp = OnAfk;
 				if (temp != null)
@@ -55,50 +54,54 @@ namespace Mining
 				}
 
 			}
-			// Check CK/Monster
-			foreach (var ch in World.Characters)
-			{
-				if (ch.Notoriety > Notoriety.Criminal && ch.Notoriety < Notoriety.Invulnerable) 
-				{
-					if (Humanoid.Any(x => x == ch.Model))
-					{
-						var tmp = EnemyAppeared;
-						if (tmp != null)
-						{
-							foreach (EventHandler<EnemyAppearedArgs> ev in tmp.GetInvocationList())
-							{
-								ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = true, TopMonster = false }, null, null);
-							}
-						}
-					}
-					else
-					{
-						ch.Click();
-						UO.Wait(200);
-						if (TopMonster.Any(x => x == ch.Name.ToLowerInvariant()))
-						{
-							var tmp = EnemyAppeared;
-							if (tmp != null)
-							{
-								foreach (EventHandler<EnemyAppearedArgs> ev in tmp.GetInvocationList())
-								{
-									ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = false, TopMonster = true }, null, null);
-								}
-							}
-						}
-					}
-					var temp1 = EnemyAppeared;
-					if (temp1 != null)
-					{
-						foreach (EventHandler<EnemyAppearedArgs> ev in temp1.GetInvocationList())
-						{
-							ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = false, TopMonster = false }, null, null);
-						}
-					}
+			//// Check CK/Monster
+			//foreach (var ch in World.Characters)
+			//{
+			//	if (ch.Notoriety > Notoriety.Criminal && ch.Notoriety < Notoriety.Invulnerable) 
+			//	{
+			//		if (Humanoid.Any(x => x == ch.Model))
+			//		{
+			//			var tmp = EnemyAppeared;
+			//			if (tmp != null)
+			//			{
+			//				foreach (EventHandler<EnemyAppearedArgs> ev in tmp.GetInvocationList())
+			//				{
+			//					ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = true, TopMonster = false }, null, null);
+			//				}
+			//			}
+			//		}
+			//		else
+			//		{
+			//			ch.Click();
+			//			UO.Wait(200);
+			//			if (TopMonster.Any(x => x == ch.Name.ToLowerInvariant()))
+			//			{
+			//				var tmp = EnemyAppeared;
+			//				if (tmp != null)
+			//				{
+			//					foreach (EventHandler<EnemyAppearedArgs> ev in tmp.GetInvocationList())
+			//					{
+			//						ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = false, TopMonster = true }, null, null);
+			//					}
+			//				}
+			//			}
+			//			else
+			//			{
+			//				var temp1 = EnemyAppeared;
+			//				if (temp1 != null)
+			//				{
+			//					foreach (EventHandler<EnemyAppearedArgs> ev in temp1.GetInvocationList())
+			//					{
+			//						ev.BeginInvoke(this, new EnemyAppearedArgs() { Enemy = ch, CK = false, TopMonster = false }, null, null);
+			//					}
+			//				}
+			//			}
+			//		}
 
 
-				}
-			}
+
+			//	}
+			//}
 			// Check Light
 			if (Journal.Contains(true, calls[15]) || World.Player.Layers[Layer.LeftHand].Graphic.Equals(0x0A18))
 			{
@@ -109,7 +112,7 @@ namespace Mining
 			}
 
 			// No Ore
-			if (Journal.Contains(true, calls[6], calls[7], calls[8], calls[9]))
+			if (Journal.Contains(true, calls[6], calls[7], calls[8], calls[9], calls[10]))
 			{
 				temp = OnNoOre;
 				if (temp != null)

@@ -35,6 +35,8 @@ namespace Mining
 
 		Settings Settings;
 		Check Check;
+		List<string> TopMonster = new List<string>() { "golem", "spirit" };
+		Graphic[] Humanoid = { 0x0191, 0x0190 };
 		private string AlarmPath = Core.Directory + @"\afk.wav";
 		private Graphic Ore = 0x19B7;
 		private Dictionary<string, UOColor> Material = new Dictionary<string, UOColor>() { { "Copper", 0x099A }, { "Iron", 0x0763 }, { "Kremicity", 0x0481 }, { "Verite", 0x097F }, { "Valorite", 0x0985 }, { "Obsidian", 0x09BD }, { "Adamantium", 0x0026 } };
@@ -49,11 +51,8 @@ namespace Mining
 		private bool MineRun=false;
 		private bool MaxedWeight = false;
 		private bool SkillDelay=false;
-		private bool EnemyAppeared=false;
-		UOCharacter Enemy;
-		private bool CK=false;
-		private bool TopMonster=false;
-		private UOCharacter LastEnemy;
+
+
 
 		public void Initialize()
 		{
@@ -77,16 +76,21 @@ namespace Mining
 				}
 			}));
 			Core.Window.FormClosing += Window_FormClosing;
-            Core.Disconnected += Core_Disconnected;
+			Core.Disconnected += Core_Disconnected;
+
+
+
+
+
 		}
 
-        private void Core_Disconnected(object sender, EventArgs e)
-        {
-            XmlSerializeHelper<Settings>.Save("Mining", Instance.Settings, false);
-            Core.Window.FormClosing -= Window_FormClosing;
-        }
+		private void Core_Disconnected(object sender, EventArgs e)
+		{
+			XmlSerializeHelper<Settings>.Save("Mining", Instance.Settings, false);
+			Core.Window.FormClosing -= Window_FormClosing;
+		}
 
-        private void Window_FormClosing(object sender, FormClosingEventArgs e)
+		private void Window_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			XmlSerializeHelper<Settings>.Save("Mining", Instance.Settings, false);
 
@@ -94,8 +98,15 @@ namespace Mining
 
 		public void Start()
 		{
-			CK = false;
-			TopMonster = false;
+			// count materials
+
+			Instance.Settings.AIron = World.Player.Backpack.AllItems.FindType(Ore, Material["Iron"]).Amount;
+			Instance.Settings.ASilicon = World.Player.Backpack.AllItems.FindType(Ore, Material["Kremicity"]).Amount;
+			Instance.Settings.AVerite = World.Player.Backpack.AllItems.FindType(Ore, Material["Verite"]).Amount;
+			Instance.Settings.AValorite = World.Player.Backpack.AllItems.FindType(Ore, Material["Valorite"]).Amount;
+			Instance.Settings.AObsidian = World.Player.Backpack.AllItems.FindType(Ore, Material["Obsidian"]).Amount;
+			Instance.Settings.AAdamantium = World.Player.Backpack.AllItems.FindType(Ore, Material["Adamantium"]).Amount;
+
 			if (Instance.Settings.ActualMapIndex == 0)
 			{
 				UO.PrintError("Vyber Mapu");
@@ -104,7 +115,6 @@ namespace Mining
 
 			Check.Start();
 			MineRun = true;
-			Check.EnemyAppeared += Check_EnemyAppeared;
 			Check.OnAfk += Check_OnAfk;
 			Check.OnMaxedWeight += Check_OnMaxedWeight;
 			Check.OnNoOre += Check_OnNoOre;
@@ -137,31 +147,11 @@ namespace Mining
 					MaxedWeight = false;
 				}
 
-				if (CK || TopMonster)
-				{
-					Stop();
-					UOItem pr;
-					Mining.Run r = new Mining.Run(Run);
-					if (World.Player.Backpack.AllItems.FindType(Ore, Material["Iron"]).Amount > 10 && CK) 
-					{
 
-						r.BeginInvoke(true, null, null);
-						for(int i=0;i< (World.Player.Backpack.AllItems.FindType(Ore, Material["Iron"]).Amount>100?50:100);i++)
-						{
-							if (UO.Dead) break;
-							pr = new UOItem(World.Player.Backpack.AllItems.FindType(Ore, Material["Iron"]));
-							if (pr.Amount > 5)
-							{
-								pr.Move(1, World.Player.Backpack, 20, 20);
-							}
-						}
-					}
-					r.BeginInvoke(false, null, null);
-					return;
-				}
 				UO.Wait(200);
 				if (Instance.Settings.AutoRemoveRocks)
 				{
+					CheckCK();
 					int tmp = 3300 - (int)(DateTime.Now - StartMine).TotalMilliseconds;
 					if (tmp > 0)
 					{
@@ -171,46 +161,11 @@ namespace Mining
 				}
 			}
 		}
-		private void Run(bool recall)
-		{
-			DateTime drink;
-			while (true)
-			{
-				if (Enemy.Distance > 5)
-				{
-					UO.Say(".potioninvis");
-					drink = DateTime.Now;
-					if (recall)
-					{
-						Recall(0);
-						UO.TerminateAll();
-					}
-					else
-					{
-						UO.Wait(300);
-						if (!World.Player.Hidden)
-						{
-							while (!World.Player.Hidden)
-							{
-								moveXField(10);
-								if (DateTime.Now - drink > TimeSpan.FromSeconds(21) && Enemy.Distance > 3)
-								{
-									UO.Say(".potioninvis");
-									UO.TerminateAll();
-								}
-							}
-						}
-					}
-				}
-			}
-
-		}
 
 		public void Stop()
 		{
 			Check.Stop();
 			MineRun = false;
-			Check.EnemyAppeared -= Check_EnemyAppeared;
 			Check.OnAfk -= Check_OnAfk;
 			Check.OnMaxedWeight += Check_OnMaxedWeight;
 			Check.OnNoOre -= Check_OnNoOre;
@@ -225,53 +180,62 @@ namespace Mining
 
 		private void Check_OnOreAdded(object sender, OnOreAddedArgs e)
 		{
-
-			Instance.Settings.WeightProgressbar = World.Player.Weight;
-			switch(e.Type)
+			Check.OnOreAdded -= Check_OnOreAdded;
+			try
 			{
-				case "Copper":
-					if (Instance.Settings.SkipCopper) EmptyField = true;
-					if (Instance.Settings.DropCopper)
-					{
-						EmptyField = true;
-						World.Player.Backpack.AllItems.FindType(Ore, Material["Copper"]).DropHere(ushort.MaxValue);
-					}
-					
-						break;
-				case "Iron":
-					if (Instance.Settings.SkipIron) EmptyField = true;
-					Instance.Settings.AIron++;
-					Instance.Settings.TIron++;
-					break;
-				case "Kremicity":
-					if (Instance.Settings.SkipSilicon) EmptyField = true;
-					Instance.Settings.ASilicon++;
-					Instance.Settings.TSilicon++;
-					break;
-				case "Verite":
-					if (Instance.Settings.SkipVerite) EmptyField = true;
-					Instance.Settings.AVerite++;
-					Instance.Settings.TVerite++;
-					break;
-				case "Valorite":
-					Instance.Settings.AValorite++;
-					Instance.Settings.TValorite++;
-					break;
-				case "Obsidian":
-					Instance.Settings.AObsidian++;
-					Instance.Settings.TObsidian++;
-					break;
-				case "Adamantium":
-					Instance.Settings.AAdamantium++;
-					Instance.Settings.TAdamantium++;
-					break;
-			}
+				UO.PrintWarning(e.Type);
+				Instance.Settings.WeightProgressbar = World.Player.Weight;
+				switch (e.Type)
+				{
+					case "Copper":
+						if (Instance.Settings.SkipCopper) EmptyField = true;
+						if (Instance.Settings.DropCopper)
+						{
+							EmptyField = true;
+							World.Player.Backpack.AllItems.FindType(Ore, Material["Copper"]).DropHere(ushort.MaxValue);
+						}
 
+						break;
+					case "Iron":
+						if (Instance.Settings.SkipIron) EmptyField = true;
+						Instance.Settings.AIron++;
+						Instance.Settings.TIron++;
+						break;
+					case "Kremicity":
+						if (Instance.Settings.SkipSilicon) EmptyField = true;
+						Instance.Settings.ASilicon++;
+						Instance.Settings.TSilicon++;
+						break;
+					case "Verite":
+						if (Instance.Settings.SkipVerite) EmptyField = true;
+						Instance.Settings.AVerite++;
+						Instance.Settings.TVerite++;
+						break;
+					case "Valorite":
+						Instance.Settings.AValorite++;
+						Instance.Settings.TValorite++;
+						break;
+					case "Obsidian":
+						Instance.Settings.AObsidian++;
+						Instance.Settings.TObsidian++;
+						break;
+					case "Adamantium":
+						Instance.Settings.AAdamantium++;
+						Instance.Settings.TAdamantium++;
+						break;
+				}
+			}
+			catch (Exception ex) { UO.PrintError("Ore Added event : {0}", ex.Message); }
+			finally
+			{
+				Check.OnOreAdded += Check_OnOreAdded;
+			}
 		}
 
 		private void Check_OnNoOre(object sender, EventArgs e)
 		{
 			EmptyField = true;
+			UO.PrintInformation("No Ore");
 		}
 
 		private void Check_OnMaxedWeight(object sender, EventArgs e)
@@ -288,61 +252,19 @@ namespace Mining
 			Check.OnAfk += Check_OnAfk;
 		}
 
-		private void Check_EnemyAppeared(object sender, EnemyAppearedArgs e)
-		{
-			if (EnemyAppeared) return;
-			if (LastEnemy != Enemy)
-			{
-				if (e.CK)
-				{
-					CK = true;
-				}
-				if (e.TopMonster)
-				{
-					TopMonster = true;
-				}
-				EnemyAppeared = true;
-				Enemy = new UOCharacter(e.Enemy);
-				Enemy.Click();
-				UO.Wait(100);
 
-				LastEnemy = Enemy;
-				if((Enemy.Name=="Kryska" || Enemy.Name == "Troll") && !Instance.Settings.KryskaTrollAlarm)
-				{
-
-				}
-				else
-				{
-					System.Media.SoundPlayer my_wave_file = new System.Media.SoundPlayer(AlarmPath);
-					my_wave_file.Play();
-				}
-
-			}
-		}
 
 		private void MineHere(MineField mf, int Try)
 		{
 			try
 			{
-				if (mf == null || CK || TopMonster) return;
+				if (mf == null ) return;
 				if (Try == 0)
 				{
 
 					EmptyField = false;
 				}
-				if (EnemyAppeared)
-				{
-
-					try
-					{
-						UO.Say(Instance.Settings.FightSay);
-						Battle b = new Battle(MoveTo, moveXField, Recall, Enemy, Weapon);
-						b.Kill();
-					}
-					catch (Exception ex) { UO.PrintError(ex.Message); }
-					UO.Say(Instance.Settings.FightSay);
-					EnemyAppeared = false;
-				}
+				CheckCK();
 				if (SkillDelay)
 				{
 					UO.Wait(5000);
@@ -396,17 +318,12 @@ namespace Mining
 		{
 			try
 			{
-				if (item == null || CK || TopMonster) return;
+				CheckCK();
+				if (item == null) return;
 				if (Try == 0)
 				{
 
 					EmptyField = false;
-				}
-				if (EnemyAppeared)
-				{
-					EnemyAppeared = false;
-					Battle b = new Battle(MoveTo, moveXField, Recall, Enemy, Weapon);
-					b.Kill();
 				}
 				if (SkillDelay)
 				{
@@ -429,7 +346,11 @@ namespace Mining
 					MaxedWeight = false;
 				}
 
-
+				if(EmptyField == true)
+				{
+					EmptyField = false;
+					return;
+				}
 
 				item.WaitTarget();
 				PickAxe.Use();
@@ -445,7 +366,7 @@ namespace Mining
 		private void Unload()
 		{
 
-            int tmpMapIndex = Instance.Settings.ActualMapIndex;
+			int tmpMapIndex = Instance.Settings.ActualMapIndex;
 			UOItem dltmp = new UOItem(Settings.DoorLeft);
 			UOItem drtmp = new UOItem(Settings.DoorRight);
 			if (dltmp.Graphic == Settings.DoorLeftClosedGraphic) dltmp.Use();
@@ -454,7 +375,6 @@ namespace Mining
 			Instance.Settings.ActualMapIndex = 0;
 			MoveTo(Instance.Settings.HousePositionX, Instance.Settings.HousePositionY);
 
-			Serial tmp;
 			openBank(14);
 			UOItem box = new UOItem(Instance.Settings.OreBox);
 			box.Use();
@@ -473,39 +393,38 @@ namespace Mining
 			World.Player.Backpack.AllItems.FindType(Ore, Material["Obsidian"]).Move(ushort.MaxValue, box);
 			World.Player.Backpack.AllItems.FindType(Ore, Material["Adamantium"]).Move(ushort.MaxValue, box);
 			UO.Wait(100);
-			CHeckTools();
-			if (PickAxe.Serial == 0)
-			{
 
-				tmp = resourceBox.AllItems.FindType(0x1406).Exist
-						? resourceBox.AllItems.FindType(0x1406).Serial : resourceBox.AllItems.FindType(0x1407).Exist
-						? resourceBox.AllItems.FindType(0x1407).Serial : 0;
-				if (tmp == 0)
+			int tmpCnt = World.Player.Layers.Count(x => x.Graphic == 0x0E85 || x.Graphic == 0x0E86);
+			if(tmpCnt==0)
+			{
+				tmpCnt = resourceBox.AllItems.Count(x => x.Graphic == 0x0E85 || x.Graphic == 0x0E86);
+				if(tmpCnt==0)
 				{
-					UO.PrintError("Nemas krumpac");
+					UO.PrintError("NEmas Krumpac");
 					UO.TerminateAll();
 				}
 				else
 				{
-					new UOItem(tmp).Move(1, World.Player.Backpack);
+					new UOItem(resourceBox.AllItems.First(x => x.Graphic == 0x0E85 || x.Graphic == 0x0E86)).Move(1,World.Player.Backpack);
 				}
 			}
 
-			if (Weapon == 0)
+
+			tmpCnt = World.Player.Layers.Count(x => x.Graphic == 0x1407 || x.Graphic == 0x1406);
+			if (tmpCnt == 0 && (new UOItem(Instance.Settings.Weapon).Graphic== 0x1407 || new UOItem(Instance.Settings.Weapon).Graphic == 0x1406))
 			{
-				tmp = resourceBox.AllItems.FindType(0x0E85).Exist
-				? resourceBox.AllItems.FindType(0x0E85).Serial : resourceBox.AllItems.FindType(0x0E86).Exist
-				? resourceBox.AllItems.FindType(0x0E86).Serial : 0;
-				if (tmp == 0)
+				tmpCnt = resourceBox.AllItems.Count(x => x.Graphic == 0x1407 || x.Graphic == 0x1406);
+				if (tmpCnt == 0)
 				{
-					UO.PrintError("Nemas Zbran");
+					UO.PrintError("NEmas zbran");
 					UO.TerminateAll();
 				}
 				else
 				{
-					new UOItem(tmp).Move(1, World.Player.Backpack);
+					new UOItem(resourceBox.AllItems.First(x => x.Graphic == 0x1407 || x.Graphic == 0x1406)).Move(1, World.Player.Backpack);
 				}
 			}
+
 			for (ushort i = 0x0F0F; i < 0x0F31; i++)
 			{
 				World.Player.Backpack.AllItems.FindType(i).Move(ushort.MaxValue, gemBox);
@@ -517,7 +436,7 @@ namespace Mining
 			
 			SelfFeed();
 			resourceBox.Use();
-			if (World.Player.Backpack.AllItems.FindType(0x1F4C).Amount < 6)
+			if (World.Player.Backpack.AllItems.FindType(0x1F4C).Amount < 8)
 				resourceBox.AllItems.FindType(0x1F4C).Move(7, World.Player.Backpack);
 
 			// GH
@@ -553,7 +472,7 @@ namespace Mining
 		}
 
 
-
+		// TODO Redo checktools
 		private bool CHeckTools()
 		{
 			uint tmp;
@@ -652,6 +571,7 @@ namespace Mining
 
 		private MineField MoveToClosestExploitable()
 		{
+			
 			Instance.Settings.Maps[Instance.Settings.ActualMapIndex].FindObstacles();
 			Instance.Settings.Maps[Instance.Settings.ActualMapIndex].Fields.Sort((a, b) => a.Distance.CompareTo(b.Distance));
 			MineField tmp;
@@ -671,10 +591,23 @@ namespace Mining
 
 		public void MoveTo(int X, int Y)
 		{
-			foreach (Point p in GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y)))
+			List<Point> tmp;
+			tmp = GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y));
+			for(int i=0;i<tmp.Count;i++)
 			{
-				mov.moveToPosition(p);
+				if(i%10==0)
+				{
+					tmp= GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y));
+				}
+				mov.moveToPosition(tmp[i]); 
 			}
+
+
+
+   //         foreach (Point p in GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y)))
+			//{
+			//	mov.moveToPosition(p);
+			//}
 		}
 
 
@@ -753,8 +686,92 @@ namespace Mining
 			return CallbackResult.Sent;
 		}
 
+		private void CheckCK()
+		{
 
+			// Check CK/Monster
+			World.FindDistance = 19;
+			foreach (var ch in World.Characters)
+			{
+				if (ch.Notoriety > Notoriety.Criminal && ch.Notoriety < Notoriety.Invulnerable)
+				{
+					if (Humanoid.Any(x => x == ch.Model))
+					{
+						// CK
+						UO.Say(".potioninvis");
+						UO.Say(".recallhome");
+						System.Media.SoundPlayer my_wave_file = new System.Media.SoundPlayer(AlarmPath);
+						my_wave_file.Play();
+						MakeMess();
+					}
+					else
+					{
+						ch.Click();
+						UO.Wait(200);
+						if (TopMonster.Any(x => x == ch.Name.ToLowerInvariant()))
+						{
+							if (ch.Distance > 3)
+							{
+								UO.Say(".potioninvis");
+								UO.Say(".recallhome");
+								System.Media.SoundPlayer my_wave_file = new System.Media.SoundPlayer(AlarmPath);
+								my_wave_file.Play();
+							}
+						}
+						else
+						{
+							if ((ch.Name == "Kryska" || ch.Name == "Troll") && !Instance.Settings.KryskaTrollAlarm)
+							{ }
+							else
+							{
+								System.Media.SoundPlayer my_wave_file = new System.Media.SoundPlayer(AlarmPath);
+								my_wave_file.Play();
+							}
+							try
+							{
+								Battle b = new Battle(MoveTo, moveXField, Recall, ch, Weapon);
+								b.Kill();
+							}
+							catch { }
+						}
 
+					}
+					return;
+				}
+			}
+		}
+
+		private void MakeMess()
+		{
+			foreach( UOItem it in World.Player.Backpack.AllItems.Where(x=>x.Graphic==Ore))
+			{
+				if(it.Amount>1)
+				{
+					for(int i=0;i<it.Amount;i++)
+					{
+						it.Move(1, World.Player.Backpack, 10, 10);
+						UO.Wait(100);
+						if (World.Player.Dead)
+						{
+							Stop();
+							UO.TerminateAll();
+						}
+					}
+					UO.Wait(50);
+					if (World.Player.Dead)
+					{
+						Stop();
+						UO.TerminateAll();
+					}
+				}
+				UO.Wait(50);
+				if (World.Player.Dead)
+				{
+					Stop();
+					UO.TerminateAll();
+				}
+			}
+		}
 
 		private void LastInstance_OnCHanged(object sender, EventArgs e)
 		{

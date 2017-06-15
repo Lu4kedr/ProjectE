@@ -289,7 +289,7 @@ namespace Project_E
         private void WT_HitsChanged(object sender, Watcher.HitsChangedArgs e)
         {
             if (!e.gain) LastHitDecrease = e.amount;
-            if(SGUI.AutoDrink)
+            if(SGUI.AutoDrink && !World.Player.Dead)
             {
                 if ((World.Player.Hits + 10) <= LastHitDecrease) UO.Say(".potionheal");
                 if (World.Player.Hits <= short.Parse(SGUI.Hits2Drink ?? "50")) UO.Say(".potionheal");

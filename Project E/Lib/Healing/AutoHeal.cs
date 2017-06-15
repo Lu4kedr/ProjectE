@@ -55,28 +55,31 @@ namespace Project_E.Lib.Healing
 
         public void Start()
         {
+            UO.PrintInformation("Debug Heal ON");
             Running = true;
-            bw = new BackgroundWorker();
-            bw.WorkerSupportsCancellation = true;
-            bw.DoWork += Bw_DoWork;
+            //bw = new BackgroundWorker();
+            //bw.WorkerSupportsCancellation = true;
+            //bw.DoWork += Bw_DoWork;
 
 
             ev.OnCrystalChange += Ev_OnCrystalOn;
             ev.OnMusicDone += Ev_OnMusicDone;
             ev.OnParalyze += Ev_OnParalyze;
             ev.OnRessurectionDone += Ev_OnRessurectionDone;
-            bw.RunWorkerAsync();
+            HealRunning(ref Running);
+           // bw.RunWorkerAsync();
         }
 
 
         public void Stop()
         {
+            UO.PrintInformation("Debug Heal OFF");
             Running = false;
-            if (bw != null)
-            {
-                bw.CancelAsync();
-                bw.DoWork -= Bw_DoWork;
-            }
+            //if (bw != null)
+            //{
+            //    bw.CancelAsync();
+            //    bw.DoWork -= Bw_DoWork;
+            //}
 
             ev.OnCrystalChange -= Ev_OnCrystalOn;
             ev.OnMusicDone -= Ev_OnMusicDone;
@@ -113,13 +116,58 @@ namespace Project_E.Lib.Healing
         #endregion
 
 
+        private void HealRunning(ref bool On)
+        {
+            Patient temp;
+            while (On)
+            {
+                UO.Wait(100);
+                if (Paralyze && Settings.AutoHarm)
+                {
+                    SelfHarm(false);
+                    Paralyze = false;
+                }
+                if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
+                {
+                    Bandage();
+                }
+                if (World.Player.Hidden || !RessurectDone || Paralyze) continue;
+                temp = HP.GetPatient(PatientMinHits);
+                if (temp == null)
+                {
+                    if (CrystalOn) UO.Say(CrystalCmd);
+                    GetStatuses();
+                }
+                else
+                {
+                    if (!MusicDone && temp.Character.Hits > 65)
+                    {
+                        temp = null;
+                    }
+                    else
+                    {
+                        if (BandageDone)
+                            Bandage(temp);
+                        else
+                        {
+                            if ((DateTime.Now - StartBandage).TotalSeconds > 7)
+                            {
+                                BandageDone = true;
+                                UO.Print("Error");
+                            }
+                        }
+                        temp = null;
+                    }
+                }
+            }
+        }
 
         private void Bw_DoWork(object sender, DoWorkEventArgs e)
         {
             Patient temp;
             while (!bw.CancellationPending)
             {
-                Thread.Sleep(200);
+                Thread.Sleep(100);
                 if (Paralyze && Settings.AutoHarm)
                 {
                     SelfHarm(false);

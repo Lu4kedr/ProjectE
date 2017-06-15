@@ -43,7 +43,9 @@ namespace Mining
             {
                 MineField tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
                 if (tmp == null) continue;
-                Fields[Fields.IndexOf(tmp)].State = MineFieldState.Obstacle;
+                UO.PrintInformation("Zaval zaregistrovan"); // TODO zavala registr
+                if (Fields[Fields.IndexOf(tmp)].State != MineFieldState.Obstacle)
+                    Fields[Fields.IndexOf(tmp)].State = MineFieldState.Obstacle;
             }
             // Set Fields empty when someone stands on them
             foreach(var it in World.Characters)
@@ -57,7 +59,7 @@ namespace Mining
         public void RemoveNearObstacles(Action<UOItem,int> RemoveObstacle)
         {
             World.FindDistance = 2;
-            foreach (UOItem it in World.Ground.Where(x => Obsatcles.Any(a => x.Graphic.Equals(a))))
+            foreach (UOItem it in World.Ground.Where(x => Obsatcles.Any(a => x.Graphic.Equals(a)) && x.Distance<3))
             {
                 it.Click();
                 UO.Wait(300);

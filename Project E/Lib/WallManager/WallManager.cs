@@ -20,7 +20,7 @@ namespace Project_E.Lib.WallManager
         public WallManager()
         {
             Core.RegisterServerMessageCallback(0x1C, onWallSpeech);
-            Core.RegisterServerMessageCallback(0x1A, OnBuildWall, CallbackPriority.High);
+            Core.RegisterServerMessageCallback(0x1A, OnBuildWall, CallbackPriority.Lowest);
             Collection = new WallCollection();
             Collection.Changed += Collection_Changed;
             bw = new BackgroundWorker();
@@ -50,14 +50,15 @@ namespace Project_E.Lib.WallManager
                         }
                     }
                     else Collection.Remove(w);
-                    Thread.Sleep(100);
-                }
-
-                while (DateTime.Now - delayedPrint < TimeSpan.FromSeconds(5))
-                {
-                    if (bw.CancellationPending)return;
                     Thread.Sleep(200);
                 }
+
+                while (DateTime.Now - delayedPrint < TimeSpan.FromSeconds(10))
+                {
+                    if (bw.CancellationPending)return;
+                    Thread.Sleep(1000);
+                }
+                Thread.Sleep(500);
             }
         }
 
