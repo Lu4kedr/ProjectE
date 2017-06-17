@@ -209,7 +209,7 @@ namespace Project_E
             Main.Instance.AB.kudla(Main.Instance.SGUI.Weapons);
         }
 
-        [Command]
+        [Command,BlockMultipleExecutions]
         public void probo()
         {
             Main.Instance.AB.probo(HiddenTime, hidoff);

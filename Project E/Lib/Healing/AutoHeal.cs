@@ -246,6 +246,7 @@ namespace Project_E.Lib.Healing
             BandageDone = false;
             StartBandage = DateTime.Now;
             UO.Say(HealCmd + "15");
+            UO.Wait(200);
             if (Weapon == null ? false : true && new UOItem(Weapon.ActualWeapon.Weapon).Layer == Layer.None)
             {
                 Weapon.ActualWeapon.Equip();
