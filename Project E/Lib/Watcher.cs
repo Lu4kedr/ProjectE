@@ -170,7 +170,7 @@ namespace Project_E.Lib
                     }
                 }
 
-                Thread.Sleep(400);
+                Thread.Sleep(200);
             }
         }
 

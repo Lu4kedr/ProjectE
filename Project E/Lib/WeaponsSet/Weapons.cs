@@ -45,7 +45,8 @@ namespace Project_E.Lib.WeaponsSet
         }
         private void SwitchWeapons(int tempCyclus)
         {
-            if (tempCyclus > (weapons.Count == 0 ? 100 : weapons.Count + 5))
+
+            if (tempCyclus > (weapons.Count == 0 ? 20 : weapons.Count + 5))
             {
                 UO.PrintError("Nemas u sebe zadnou zbran ze seznamu");
                 return;
@@ -68,11 +69,13 @@ namespace Project_E.Lib.WeaponsSet
                 }
                 if ((new UOItem(ActualWeapon.Weapon)).Exist)
                     ActualWeapon.Equip();
+
                 else
                 {
                     UO.Wait(100);
                     SwitchWeapons(tempCyclus++);
                 }
+                UO.ClickObject(World.Player);
             }
         }
     }
