@@ -67,7 +67,7 @@ namespace Project_E
                 foreach (WeaponSet t in Main.Instance.SGUI.Weapons.weapons)
                 {
                     ListViewItem lvitem = new ListViewItem(t.Name);
-                    if (t.Weapon == Main.Instance.SGUI.Weapons.ActualWeapon.Weapon && t.Shield == Main.Instance.SGUI.Weapons.ActualWeapon.Shield)
+                    if (t.Weapon.Equals(Main.Instance.SGUI.Weapons.ActualWeapon.Weapon) && t.Shield.Equals(Main.Instance.SGUI.Weapons.ActualWeapon.Shield))
                     {
                         lvitem.SubItems.Add("Actual Weapon");
                     }

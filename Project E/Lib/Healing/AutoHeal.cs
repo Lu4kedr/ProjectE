@@ -24,19 +24,19 @@ namespace Project_E.Lib.Healing
         string HealCmd;
         string CrystalCmd;
         HealedPlayers HP;
-        WeaponSet Weapon;
+        Weapons Weapon;
         Watcher ev;
         SettingsGUI Settings;
 
 
 
 
-        public AutoHeal(HealedPlayers HealedPlayers, string HealCmd, string CrystalCmd, WeaponSet ActualWeapon, Watcher watcher, SettingsGUI settings, int PatientMinHP,Action<bool> selfHarm)
+        public AutoHeal(HealedPlayers HealedPlayers, string HealCmd, string CrystalCmd, Weapons weapons, Watcher watcher, SettingsGUI settings, int PatientMinHP,Action<bool> selfHarm)
         {
             HP = HealedPlayers;
             this.HealCmd = HealCmd;
             this.CrystalCmd = CrystalCmd;
-            Weapon = ActualWeapon;
+            Weapon = weapons;
             ev = watcher;
             Settings = settings;
             PatientMinHits = PatientMinHP;
@@ -219,9 +219,9 @@ namespace Project_E.Lib.Healing
             {
                 UO.Say(CrystalCmd);
             }
-            if (Weapon == null ? false : true)
+            if (Weapon.ActualWeapon == null ? false : true)
             {
-                Weapon.Equip();
+                Weapon.ActualWeapon.Equip();
             }
 
         }
@@ -232,24 +232,26 @@ namespace Project_E.Lib.Healing
                 BandageDone = true;
             if (!BandageDone || World.Player.Hits == World.Player.MaxHits)
             {
-                if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer == Layer.None)
+                if (Weapon == null ? false : true && new UOItem(Weapon.ActualWeapon.Weapon).Layer == Layer.None)
                 {
-                    Weapon.Equip();
+                    Weapon.ActualWeapon.Equip();
                 }
                 return;
             }
-            if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer == Layer.None)
+            if (Weapon == null ? false : true && new UOItem(Weapon.ActualWeapon.Weapon).Layer == Layer.None)
             {
-                Weapon.Equip();
+                Weapon.ActualWeapon.Equip();
             }
+
             BandageDone = false;
             StartBandage = DateTime.Now;
             UO.Say(HealCmd + "15");
-            if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer==Layer.None)
+            if (Weapon == null ? false : true && new UOItem(Weapon.ActualWeapon.Weapon).Layer == Layer.None)
             {
-                Weapon.Equip();
+                Weapon.ActualWeapon.Equip();
             }
-            if(Running)GetStatuses();
+            
+            if (Running)GetStatuses();
         }
 
         public void Res()

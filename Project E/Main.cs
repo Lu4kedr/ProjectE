@@ -92,7 +92,7 @@ namespace Project_E
 
             // TODO AH - nutno predavat tolik atrb ?!
             AH = new AutoHeal(SGUI.HealedPlayers, SGUI.KlerikShaman == 0 ? ".heal" : ".samheal",
-                SGUI.KlerikShaman == 0 ? ".enlightment" : ".improvement", SGUI.Weapons.ActualWeapon, WT, SGUI, SGUI.KlerikShaman == 0 ? 86 : 90,SK.HarmSelf);
+                SGUI.KlerikShaman == 0 ? ".enlightment" : ".improvement", SGUI.Weapons, WT, SGUI, SGUI.KlerikShaman == 0 ? 86 : 90,SK.HarmSelf);
             SM = new SpellManager(SGUI, AB.Sacrafire,AH.Bandage);
             EreborGUI = EreborGUI.LastInstance;
             #endregion

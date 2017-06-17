@@ -1,8 +1,10 @@
 ﻿using Phoenix;
 using Phoenix.Communication;
+using Phoenix.Communication.Packets;
 using Phoenix.WorldData;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Project_E
 {
@@ -11,11 +13,37 @@ namespace Project_E
     {
         private int x = 1;
         Main i;
+        private int Exp;
+
         public Initialize()
         {
             i = Main.Instance;
         }
 
+        [Command]
+        public void exp()
+        {
+            UO.PrintInformation("ziskano zkusenosti: {0}", Exp);
+        }
+
+
+        [ServerMessageHandler(0x1C)]
+        public CallbackResult onExp(byte[] data, CallbackResult prevResult)
+        {
+            AsciiSpeech packet = new AsciiSpeech(data);
+            if (packet.Text.Contains(" zkusenosti."))
+            {
+
+                //string[] numbers = Regex.Split(packet.Text, @"\D+");
+                string number = Regex.Match(packet.Text, @"-?\d+").Value;
+                if (!string.IsNullOrEmpty(number))
+                {
+                    Exp += int.Parse(number);
+
+                }
+            }
+            return CallbackResult.Normal;
+        }
 
 
 
