@@ -75,7 +75,7 @@ namespace Project_E
             if (World.Player.Name == null) return;
             Wait2CharLoad.Stop();
             setEQ();
-
+            Aliases.SetObject("SpellTarget", 0);
             #region Initialize Classes
             DM = new DrinkManager();
             WM = new WallManager();
@@ -288,11 +288,23 @@ namespace Project_E
 
         private void WT_HitsChanged(object sender, Watcher.HitsChangedArgs e)
         {
-            if (!e.gain) LastHitDecrease = e.amount;
+            UOColor PrintColor = 0x099; // Yellow
+
+            if (!e.gain)
+            {
+                LastHitDecrease = e.amount;
+                PrintColor = 0x0026; // RED
+            }
             if(SGUI.AutoDrink && !World.Player.Dead)
             {
                 if ((World.Player.Hits + 10) <= LastHitDecrease) UO.Say(".potionheal");
                 if (World.Player.Hits <= short.Parse(SGUI.Hits2Drink ?? "50")) UO.Say(".potionheal");
+            }
+
+            if (e.amount > 4)
+            {
+                if (e.poison) PrintColor = 0x0175; // GREEN
+                World.Player.Print(PrintColor, "[{0} HP] {1}{2} HP", World.Player.Hits, e.gain ? "+" : "-", e.amount);
             }
         }
 
@@ -820,8 +832,6 @@ namespace Project_E
             }));
             TabIndex = e.TabControlSelectedID;
 
-            // Save to xml on change
-            // TODO Save btn
 
            // XmlSerializeHelper<SettingsGUI>.Save(World.Player.Name, SGUI, true);
 

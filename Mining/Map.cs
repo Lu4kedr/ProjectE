@@ -43,7 +43,7 @@ namespace Mining
             {
                 MineField tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
                 if (tmp == null) continue;
-                UO.PrintInformation("Zaval zaregistrovan"); // TODO zavala registr
+               // UO.PrintInformation("Zaval zaregistrovan"); 
                 if (Fields[Fields.IndexOf(tmp)].State != MineFieldState.Obstacle)
                     Fields[Fields.IndexOf(tmp)].State = MineFieldState.Obstacle;
             }

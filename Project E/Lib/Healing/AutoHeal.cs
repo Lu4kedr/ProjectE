@@ -25,7 +25,6 @@ namespace Project_E.Lib.Healing
         string CrystalCmd;
         HealedPlayers HP;
         WeaponSet Weapon;
-        BackgroundWorker bw;
         Watcher ev;
         SettingsGUI Settings;
 
@@ -162,51 +161,51 @@ namespace Project_E.Lib.Healing
             }
         }
 
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Patient temp;
-            while (!bw.CancellationPending)
-            {
-                Thread.Sleep(100);
-                if (Paralyze && Settings.AutoHarm)
-                {
-                    SelfHarm(false);
-                    Paralyze = false;
-                }
-                if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
-                {
-                    Bandage();
-                }
-                if (World.Player.Hidden || !RessurectDone || Paralyze) continue;
-                temp = HP.GetPatient(PatientMinHits);
-                if (temp == null)
-                {
-                    if (CrystalOn) UO.Say(CrystalCmd);
-                    GetStatuses();
-                }
-                else
-                {
-                    if (!MusicDone && temp.Character.Hits > 65)
-                    {
-                        temp = null;
-                    }
-                    else
-                    {
-                        if (BandageDone)
-                            Bandage(temp);
-                        else
-                        {
-                            if ((DateTime.Now - StartBandage).TotalSeconds > 7)
-                            {
-                                BandageDone = true;
-                                UO.Print("Error");
-                            }
-                        }
-                        temp = null;
-                    }
-                }
-            }
-        }
+        //private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        //{
+        //    Patient temp;
+        //    while (!bw.CancellationPending)
+        //    {
+        //        Thread.Sleep(100);
+        //        if (Paralyze && Settings.AutoHarm)
+        //        {
+        //            SelfHarm(false);
+        //            Paralyze = false;
+        //        }
+        //        if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
+        //        {
+        //            Bandage();
+        //        }
+        //        if (World.Player.Hidden || !RessurectDone || Paralyze) continue;
+        //        temp = HP.GetPatient(PatientMinHits);
+        //        if (temp == null)
+        //        {
+        //            if (CrystalOn) UO.Say(CrystalCmd);
+        //            GetStatuses();
+        //        }
+        //        else
+        //        {
+        //            if (!MusicDone && temp.Character.Hits > 65)
+        //            {
+        //                temp = null;
+        //            }
+        //            else
+        //            {
+        //                if (BandageDone)
+        //                    Bandage(temp);
+        //                else
+        //                {
+        //                    if ((DateTime.Now - StartBandage).TotalSeconds > 7)
+        //                    {
+        //                        BandageDone = true;
+        //                        UO.Print("Error");
+        //                    }
+        //                }
+        //                temp = null;
+        //            }
+        //        }
+        //    }
+        //}
 
         private void Bandage(Patient temp)
         {
@@ -229,12 +228,24 @@ namespace Project_E.Lib.Healing
 
         public void Bandage()
         {
-            if (!BandageDone || World.Player.Hits==World.Player.MaxHits) return;
-
+            if(((DateTime.Now - StartBandage).TotalSeconds > 6))
+                BandageDone = true;
+            if (!BandageDone || World.Player.Hits == World.Player.MaxHits)
+            {
+                if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer == Layer.None)
+                {
+                    Weapon.Equip();
+                }
+                return;
+            }
+            if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer == Layer.None)
+            {
+                Weapon.Equip();
+            }
             BandageDone = false;
             StartBandage = DateTime.Now;
             UO.Say(HealCmd + "15");
-            if (Weapon == null ? false : true)
+            if (Weapon == null ? false : true && new UOItem(Weapon.Weapon).Layer==Layer.None)
             {
                 Weapon.Equip();
             }

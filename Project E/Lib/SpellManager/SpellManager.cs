@@ -19,14 +19,14 @@ namespace Project_E.Lib.SpellManager
         private byte[] LastData;
         private SettingsGUI Settings;
         DateTime StartCast=DateTime.Now;
-        Action<Action> Sacrafire;
+        Action Sacrafire;
         Action Bandage;
         public string LastSpell { get; set; }
-        readonly Dictionary<string, int> SpellsDelays = new Dictionary<string, int> {
-            { "Fireball", 2060 }, { "Flame", 4100 }, { "Meteor", 6750 }, { "Lightning", 3550 },
-            { "Bolt", 3100 }, { "frostbolt", 3000 }, { "Harm", 1500 }, { "Mind", 3450 }, { "Invis", 3300 }/*-150*/ };
+        //readonly Dictionary<string, int> SpellsDelays = new Dictionary<string, int> {
+        //    { "Fireball", 2060 }, { "Flame", 4100 }, { "Meteor", 6750 }, { "Lightning", 3550 },
+        //    { "Bolt", 3100 }, { "frostbolt", 3100 },, { "Harm", 1500 }, { "Mind", 3450 }, { "Invis", 3300 }/*-150*/ };
 
-        private Dictionary<string, int> SpellDelays = new Dictionary<string, int>()
+        public static Dictionary<string, int> SpellDelays = new Dictionary<string, int>()
         {
             { "18", 2060 },         // Fireball
             { "52", 4100 },         // Flame Strike
@@ -41,7 +41,7 @@ namespace Project_E.Lib.SpellManager
         };
 
 
-        public SpellManager(SettingsGUI settings, Action<Action> sacrafire, Action bandage)
+        public SpellManager(SettingsGUI settings, Action sacrafire, Action bandage)
         {
             Core.RegisterClientMessageCallback(0x12, SpellReq);
             Core.RegisterClientMessageCallback(0xAD, OnCustomSpell);
@@ -56,11 +56,16 @@ namespace Project_E.Lib.SpellManager
         private void DecodedSpell()
         {
             if (Settings.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Settings.Sacrafire ?? "40")))
-                Sacrafire(Bandage);
+                Sacrafire();
             if (World.Player.Hits < (World.Player.MaxHits - 7))
                 Bandage();
-
+            if (Aliases.GetObject("SpellTarget") != 0)
+            {
+                UO.Attack(Aliases.GetObject("SpellTarget"));
+                UO.WaitTargetObject(Aliases.GetObject("SpellTarget"));
+            }
             Core.SendToServer(LastData);
+            Aliases.SetObject("SpellTarget", 0);
             StartCast = DateTime.Now;
         }
 
@@ -72,16 +77,15 @@ namespace Project_E.Lib.SpellManager
             string spell = "";
             if (pr.ReadByte() == 0x56)
             {
-                spell= pr.ReadAnsiString(length-4);
-                if (SpellDelays.ContainsKey(spell))
-                {
-                    
-                    LastSpell = spell;
-                    LastData = data;
-                    DecodedSpell ds = new DecodedSpell(DecodedSpell);
-                    ds.BeginInvoke(null, null);
-                    return CallbackResult.Eat;
-                }
+                spell = pr.ReadAnsiString(length - 4);
+
+                LastSpell = spell;
+                LastData = data;
+                DecodedSpell ds = new DecodedSpell(DecodedSpell);
+                ds.BeginInvoke(null, null);
+                return CallbackResult.Eat;
+
+
             }
 
 

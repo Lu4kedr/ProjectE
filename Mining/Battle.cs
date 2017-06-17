@@ -51,7 +51,7 @@ namespace Mining
                     }
 
                     if (Enemy.Distance > 1 && !StoodUp) MoveTo(Enemy.X-1, Enemy.Y);
-                    if(StoodUp)
+                    if(StoodUp && !Enemy.Name.Contains("Rock "))
                     {
                         MoveXfield(6);
                         StoodUp = false;

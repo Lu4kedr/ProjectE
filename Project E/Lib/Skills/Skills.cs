@@ -219,9 +219,9 @@ namespace Project_E.Lib.Skills
                 }
                 UO.Wait(10);
             }
-            if (Journal.WaitForText(true, 500, "Nepovedlo se ti schovat.", "Skryti se povedlo."))
+            if (Journal.WaitForText(true, 300, "Nepovedlo se ti schovat.", "Skryti se povedlo."))
             {
-                UO.Wait(200);
+                UO.Wait(100);
                 if (!World.Player.Hidden)
                     Core.UnregisterClientMessageCallback(0x02, makeStep);
             }
@@ -488,5 +488,11 @@ namespace Project_E.Lib.Skills
 
 
         #endregion
+
+
+        #region Krafting
+
+
+            #endregion
     }
 }

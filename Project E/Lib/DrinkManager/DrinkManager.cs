@@ -74,7 +74,9 @@ namespace Project_E.Lib.DrinkManager
             UnicodeSpeechRequest a = new UnicodeSpeechRequest(data);
             if(PotionDelays.ContainsKey(a.Text))
             {
-                if(DateTime.Now-DrinkTime>TimeSpan.FromSeconds(LastDrinkDelay))
+                if (a.Text == ".potionheal" && PotionCounter[0x0160].Amount == 0)
+                    return CallbackResult.Eat;
+                if (DateTime.Now-DrinkTime>TimeSpan.FromSeconds(LastDrinkDelay))
                 {
                     DrinkTime = DateTime.Now;
                     LastDrinkDelay = PotionDelays[a.Text];

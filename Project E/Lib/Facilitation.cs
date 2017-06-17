@@ -38,5 +38,15 @@ namespace Project_E.Lib
                 UO.Wait(100);
             }
         }
+
+
+        public void TakeAllFrom(Serial target, int delay)
+        {
+            foreach(var it in new UOItem(target).AllItems)
+            {
+                it.Move(ushort.MaxValue, Main.Instance.SGUI.LotBackpack);
+                UO.Wait(delay);
+            }
+        }
     }
 }

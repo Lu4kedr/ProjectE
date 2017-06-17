@@ -90,26 +90,26 @@ namespace Project_E.Lib
 
         private VoodooState done;
 
-        public void Sacrafire(Action bandage)
+        public void Sacrafire()//Action bandage)
         {
             if (World.Player.Mana == World.Player.MaxMana)
             {
                 UO.PrintInformation("Mas plnou manu!!");
-                if (World.Player.Hits < World.Player.MaxHits) bandage();
+                if (World.Player.Hits < World.Player.MaxHits) UO.Say(",bandage");
                 return;
             }
             if (World.Player.Hits > 80)
             {
                 if (World.Player.Hits < World.Player.MaxHits)
                 {
-                    bandage();
+                    UO.Say(",bandage");
                     UO.Say(".voodooobet");
                 }
                 else
                 {
                     UO.Say(".voodooobet");
                     UO.Wait(100);
-                    bandage();
+                    UO.Say(",bandage");
                 }
                 UO.Wait(100);
             }

@@ -160,5 +160,46 @@ namespace Project_E
             }
             return CallbackResult.Normal;
         }
+
+
+        //[ServerMessageHandler(0xa1)]
+        //public CallbackResult OnHpPlayerChanged(byte[] data, CallbackResult prevResult)//0xa1
+        //{
+        //    UOPlayer character = new UOPlayer(Phoenix.ByteConverter.BigEndian.ToUInt32(data, 1));
+        //    if (character.Serial != World.Player.Serial) return CallbackResult.Normal;
+        //    short maxHits = World.Player.MaxHits; // Nejvyssi HITS bez nakouzleni
+        //    ushort hits = Phoenix.ByteConverter.BigEndian.ToUInt16(data, 7);
+        //    ushort[] color = new ushort[4];
+        //    color[0] = 0x0026;//red
+        //    color[2] = 0x0175;//green
+        //    color[1] = 0x099;//yellow
+        //    color[3] = 0x0FAB;//fialova - enemy;
+        //    int col = 0;
+
+        //    if (character.Hits - hits < -4 || character.Hits - hits > 4)
+        //    {
+        //        if (character.Hits > hits)
+        //        {
+        //            if (character.Poisoned) col = 2;
+        //            else col = 0;
+        //        }
+        //        else
+        //        {
+        //            if (character.Poisoned) col = 2;
+        //            else col = 1;
+        //        }
+
+        //        if ((character.Model == 0x0190 || character.Model == 0x0191))
+        //        {
+        //            character.Print(color[col], "{2} [{0} HP] {1}", ((maxHits / 100) * hits), (hits - character.Hits), character.Name);
+        //        }
+
+
+        //        if (character.Serial == Aliases.LastAttack)
+        //            character.Print(color[3], "[{0} HP] {1}", ((maxHits / 100) * hits), (hits - character.Hits));
+
+        //    }
+        //    return CallbackResult.Normal;
+        //}
     }
 }
