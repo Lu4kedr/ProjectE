@@ -36,143 +36,260 @@ namespace Project_E.Lib
         private bool HiddenState;
         private short Hits;
         private bool Poison;
-        private BackgroundWorker bw;
+        //private BackgroundWorker bw;
         private bool CrystalState;
+        System.Timers.Timer bw;
 
         public Watcher()
         {
             Core.RegisterServerMessageCallback(0x1C, OnCallsA);
             Core.RegisterServerMessageCallback(0x1C, OnCallsB);
             Player = World.Player;
-            bw = new BackgroundWorker();
-            bw.WorkerSupportsCancellation = true;
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
+            bw = new System.Timers.Timer(200);
+            bw.Elapsed += Bw_Elapsed;
+            bw.Start();
+            //bw = new BackgroundWorker();
+            //bw.WorkerSupportsCancellation = true;
+            //bw.DoWork += Bw_DoWork;
+            //bw.RunWorkerAsync();
         }
 
-        
-        /// <summary>
-        /// Periodicaly check and fires events.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        private void Bw_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            while (!bw.CancellationPending)
+            if (Player.Hidden != HiddenState)
             {
-                if (Player.Hidden != HiddenState)
+                EventHandler<HiddenChangedArgs> temp = HiddenChanged;
+                if (temp != null)
                 {
-                    EventHandler<HiddenChangedArgs> temp = HiddenChanged;
-                    if (temp != null)
+                    foreach (EventHandler<HiddenChangedArgs> ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler<HiddenChangedArgs> ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, new HiddenChangedArgs() { State=Player.Hidden}, null, null);
-                        }
-                    }
-
-                    HiddenState = Player.Hidden;
-                }
-
-                if (Player.Hits != Hits || Player.Poisoned != Poison)
-                {
-                    HitsChangedArgs args = new HitsChangedArgs(Player.Hits < Hits ? false : true, (short)Math.Abs(Hits - Player.Hits), Player.Poisoned);
-                    Hits = Player.Hits;
-                    Poison = Player.Poisoned;
-
-                    EventHandler<HitsChangedArgs> temp = HitsChanged;
-                    if (temp != null)
-                    {
-                        foreach (EventHandler<HitsChangedArgs> ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, args, null, null);
-                        }
+                        ev.BeginInvoke(this, new HiddenChangedArgs() { State = Player.Hidden }, null, null);
                     }
                 }
 
-                if (RessDon)
+                HiddenState = Player.Hidden;
+            }
+
+            if (Player.Hits != Hits || Player.Poisoned != Poison)
+            {
+                HitsChangedArgs args = new HitsChangedArgs(Player.Hits < Hits ? false : true, (short)Math.Abs(Hits - Player.Hits), Player.Poisoned);
+                Hits = Player.Hits;
+                Poison = Player.Poisoned;
+
+                EventHandler<HitsChangedArgs> temp = HitsChanged;
+                if (temp != null)
                 {
-                    RessDon = false;
-                    EventHandler temp = OnRessurectionDone;
-                    if (temp != null)
+                    foreach (EventHandler<HitsChangedArgs> ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, null, null, null);
-                        }
+                        ev.BeginInvoke(this, args, null, null);
                     }
-
                 }
+            }
 
-                if (MusicDon)
+            if (RessDon)
+            {
+                RessDon = false;
+                EventHandler temp = OnRessurectionDone;
+                if (temp != null)
                 {
-                    MusicDon = false;
-                    EventHandler temp = OnMusicDone;
-                    if (temp != null)
+                    foreach (EventHandler ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, null, null, null);
-                        }
-                    }
-
-                }
-
-                if (BandageDon)
-                {
-                    BandageDon = false;
-                    EventHandler temp = OnBandageDone;
-                    if (temp != null)
-                    {
-                        foreach (EventHandler ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, null, null, null);
-                        }
+                        ev.BeginInvoke(this, null, null, null);
                     }
                 }
 
-                if (Onhit)
+            }
+
+            if (MusicDon)
+            {
+                MusicDon = false;
+                EventHandler temp = OnMusicDone;
+                if (temp != null)
                 {
-                    Onhit = false;
-                    EventHandler temp = OnSuccessHit;
-                    if (temp != null)
+                    foreach (EventHandler ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, null, null, null);
-                        }
+                        ev.BeginInvoke(this, null, null, null);
                     }
                 }
 
-                if (CrystalOn)
+            }
+
+            if (BandageDon)
+            {
+                BandageDon = false;
+                EventHandler temp = OnBandageDone;
+                if (temp != null)
                 {
-                    CrystalOn = false;
-                    EventHandler<OnCrystalChangeArgs> temp = OnCrystalChange;
-                    if (temp != null)
+                    foreach (EventHandler ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler<OnCrystalChangeArgs> ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, new OnCrystalChangeArgs() { On = CrystalState }, null, null);
-                        }
+                        ev.BeginInvoke(this, null, null, null);
                     }
                 }
+            }
 
-                if (Paralyze)
+            if (Onhit)
+            {
+                Onhit = false;
+                EventHandler temp = OnSuccessHit;
+                if (temp != null)
                 {
-                    Paralyze = false;
-                    EventHandler temp = OnParalyze;
-                    if (temp != null)
+                    foreach (EventHandler ev in temp.GetInvocationList())
                     {
-                        foreach (EventHandler ev in temp.GetInvocationList())
-                        {
-                            ev.BeginInvoke(this, null, null, null);
-                        }
+                        ev.BeginInvoke(this, null, null, null);
                     }
                 }
+            }
 
-                Thread.Sleep(200);
+            if (CrystalOn)
+            {
+                CrystalOn = false;
+                EventHandler<OnCrystalChangeArgs> temp = OnCrystalChange;
+                if (temp != null)
+                {
+                    foreach (EventHandler<OnCrystalChangeArgs> ev in temp.GetInvocationList())
+                    {
+                        ev.BeginInvoke(this, new OnCrystalChangeArgs() { On = CrystalState }, null, null);
+                    }
+                }
+            }
+
+            if (Paralyze)
+            {
+                Paralyze = false;
+                EventHandler temp = OnParalyze;
+                if (temp != null)
+                {
+                    foreach (EventHandler ev in temp.GetInvocationList())
+                    {
+                        ev.BeginInvoke(this, null, null, null);
+                    }
+                }
             }
         }
+
+
+        ///// <summary>
+        ///// Periodicaly check and fires events.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        //{
+        //    while (!bw.CancellationPending)
+        //    {
+        //        if (Player.Hidden != HiddenState)
+        //        {
+        //            EventHandler<HiddenChangedArgs> temp = HiddenChanged;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler<HiddenChangedArgs> ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, new HiddenChangedArgs() { State=Player.Hidden}, null, null);
+        //                }
+        //            }
+
+        //            HiddenState = Player.Hidden;
+        //        }
+
+        //        if (Player.Hits != Hits || Player.Poisoned != Poison)
+        //        {
+        //            HitsChangedArgs args = new HitsChangedArgs(Player.Hits < Hits ? false : true, (short)Math.Abs(Hits - Player.Hits), Player.Poisoned);
+        //            Hits = Player.Hits;
+        //            Poison = Player.Poisoned;
+
+        //            EventHandler<HitsChangedArgs> temp = HitsChanged;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler<HitsChangedArgs> ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, args, null, null);
+        //                }
+        //            }
+        //        }
+
+        //        if (RessDon)
+        //        {
+        //            RessDon = false;
+        //            EventHandler temp = OnRessurectionDone;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, null, null, null);
+        //                }
+        //            }
+
+        //        }
+
+        //        if (MusicDon)
+        //        {
+        //            MusicDon = false;
+        //            EventHandler temp = OnMusicDone;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, null, null, null);
+        //                }
+        //            }
+
+        //        }
+
+        //        if (BandageDon)
+        //        {
+        //            BandageDon = false;
+        //            EventHandler temp = OnBandageDone;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, null, null, null);
+        //                }
+        //            }
+        //        }
+
+        //        if (Onhit)
+        //        {
+        //            Onhit = false;
+        //            EventHandler temp = OnSuccessHit;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, null, null, null);
+        //                }
+        //            }
+        //        }
+
+        //        if (CrystalOn)
+        //        {
+        //            CrystalOn = false;
+        //            EventHandler<OnCrystalChangeArgs> temp = OnCrystalChange;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler<OnCrystalChangeArgs> ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, new OnCrystalChangeArgs() { On = CrystalState }, null, null);
+        //                }
+        //            }
+        //        }
+
+        //        if (Paralyze)
+        //        {
+        //            Paralyze = false;
+        //            EventHandler temp = OnParalyze;
+        //            if (temp != null)
+        //            {
+        //                foreach (EventHandler ev in temp.GetInvocationList())
+        //                {
+        //                    ev.BeginInvoke(this, null, null, null);
+        //                }
+        //            }
+        //        }
+
+        //        Thread.Sleep(200);
+        //    }
+        //}
 
 
 

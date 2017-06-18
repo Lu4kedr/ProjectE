@@ -341,10 +341,17 @@ namespace Project_E
 
 
 
-        [Command,BlockMultipleExecutions]
-        public void boost(string type)
+        [Command, BlockMultipleExecutions]
+        public void boostself(string type)
         {
             Main.Instance.AB.selfboost(type);
+            UO.Print("DOne");
+        }
+
+        [Command, BlockMultipleExecutions]
+        public void boost(string type)
+        {
+            Main.Instance.AB.boost(type);
             UO.Print("DOne");
         }
 

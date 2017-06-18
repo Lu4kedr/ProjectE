@@ -76,7 +76,8 @@ namespace Project_E.Lib
             Fail,
             Success,
             Wait,
-            Redo
+            Redo,
+            NoTarget
         }
         Dictionary<string, UOItem> boostBottles = new Dictionary<string, UOItem>()
         {
@@ -117,6 +118,80 @@ namespace Project_E.Lib
         }
 
 
+
+        public void boost(string type)
+        {
+            boostBottles["str"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0835));
+            boostBottles["dex"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0006));
+            boostBottles["int"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x06C2));
+            boostBottles["def"] = new UOItem(World.Player.Backpack.AllItems.FindType(0x0F0E, 0x0999));
+            List<UOItem> Heads = new List<UOItem>();
+            UOItem head = new UOItem(0x01);
+
+            while(head.Serial!=0xFFFFFFFF)
+            {
+                UO.Wait(200);
+                head = new UOItem(UIManager.TargetObject());
+
+                if (head.Serial != 0xFFFFFFFF)
+                {
+                    Heads.Add(head);
+
+                }
+            }
+
+
+
+            try
+            {
+                Core.RegisterServerMessageCallback(0x1C, onVoodoo);
+                Serial cont;
+                ushort X, Y;
+                foreach (var it in Heads.Where(x=>HeadGraphics.Any(y=>x.Graphic==y)).ToList())
+                {
+                    cont = it.Container;
+                    X = it.X;
+                    Y = it.Y;
+                    it.Move(1, World.Player.Backpack);
+                    UO.Wait(100);
+
+                    done = VoodooState.Fail;
+                    if (boostBottles[type] == null || boostBottles[type].Serial == 0xFFFFFFFF || boostBottles[type].Serial == Serial.Invalid)
+                    {
+                        UO.PrintError("Nemas {0} lahev.", type);
+                        return;
+                    }
+                    while (done != VoodooState.Wait)
+                    {
+                        UO.Wait(200);
+                        if (done == VoodooState.NoTarget)
+                        {
+                            UO.Wait(4000);
+                            break;
+                        }
+                        boostBottles[type].WaitTarget();
+                        it.Use();
+                        UO.Wait(200);
+
+                    }
+                    while (done != VoodooState.Success)
+                    {
+                        UO.Wait(500);
+                        if (done == VoodooState.NoTarget) break;
+                    }
+                    it.Move(1, cont, X, Y);
+                    UO.Wait(100);
+
+                }
+            }
+            catch (Exception ex) { UO.PrintError(ex.InnerException.Message); }
+            finally
+            {
+
+                Core.UnregisterServerMessageCallback(0x1C, onVoodoo);
+            }
+
+        }
 
 
         public void selfboost(string type)
@@ -184,7 +259,7 @@ namespace Project_E.Lib
             if (ass.Text.Contains("Cil podlehl ")) done = VoodooState.Success;
             if (ass.Text.Contains("Jeste nelze pouzit.")) done = VoodooState.Redo;
             if (ass.Text.Contains("prokleti voodoo seslano uspesne")) done = VoodooState.Wait;
-            if (ass.Text.Contains("prokleti nenalezlo cil.")) done = VoodooState.Wait;
+            if (ass.Text.Contains("prokleti nenalezlo cil.")) done = VoodooState.NoTarget;
             return CallbackResult.Normal;
         }
         #endregion
