@@ -27,9 +27,36 @@ namespace Project_E.Lib.Healing
         Weapons Weapon;
         Watcher ev;
         SettingsGUI Settings;
+        private bool paused = true;
+        System.Timers.Timer HealCycle;
+        Patient temp;
 
+        public bool HealOnOff
+        {
+            get
+            {
+                return paused;
+            }
 
-
+            set
+            {
+                if(value)
+                {
+                    ev.OnCrystalChange += Ev_OnCrystalOn;
+                    ev.OnMusicDone += Ev_OnMusicDone;
+                    ev.OnParalyze += Ev_OnParalyze;
+                    ev.OnRessurectionDone += Ev_OnRessurectionDone;
+                }
+                else
+                {
+                    ev.OnCrystalChange -= Ev_OnCrystalOn;
+                    ev.OnMusicDone -= Ev_OnMusicDone;
+                    ev.OnParalyze -= Ev_OnParalyze;
+                    ev.OnRessurectionDone -= Ev_OnRessurectionDone;
+                }
+                paused = value;
+            }
+        }
 
         public AutoHeal(HealedPlayers HealedPlayers, string HealCmd, string CrystalCmd, Weapons weapons, Watcher watcher, SettingsGUI settings, int PatientMinHP,Action<bool> selfHarm)
         {
@@ -42,6 +69,59 @@ namespace Project_E.Lib.Healing
             PatientMinHits = PatientMinHP;
             SelfHarm = selfHarm;
             ev.OnBandageDone += Ev_OnBandageDone;
+            HealCycle = new System.Timers.Timer(200);
+            HealCycle.Elapsed += HealCycle_Elapsed;
+            HealCycle.Start();
+
+        }
+
+        private void HealCycle_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            HealCycle.Elapsed -= HealCycle_Elapsed;
+
+            if (Paralyze && Settings.AutoHarm)
+            {
+                SelfHarm(false);
+                Paralyze = false;
+            }
+            if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
+            {
+                Bandage();
+            }
+            if (World.Player.Hidden || !RessurectDone || Paralyze || !HealOnOff)
+            {
+                HealCycle.Elapsed += HealCycle_Elapsed;
+                return;
+            }
+            temp = HP.GetPatient(PatientMinHits);
+            if (temp == null)
+            {
+                if (CrystalOn) UO.Say(CrystalCmd);
+                GetStatuses();
+            }
+            else
+            {
+                if (!MusicDone && temp.Character.Hits > 65)
+                {
+                    temp = null;
+                }
+                else
+                {
+                    if (BandageDone)
+                        Bandage(temp);
+                    else
+                    {
+                        if ((DateTime.Now - StartBandage).TotalSeconds > 7)
+                        {
+                            BandageDone = true;
+                            UO.Print("Error - Too long bandage");
+                        }
+                    }
+                    temp = null;
+                }
+            }
+            HealCycle.Elapsed += HealCycle_Elapsed;
+
         }
 
         private void GetStatuses()
@@ -52,39 +132,39 @@ namespace Project_E.Lib.Healing
             }
         }
 
-        public void Start()
-        {
-            UO.PrintInformation("Debug Heal ON");
-            Running = true;
-            //bw = new BackgroundWorker();
-            //bw.WorkerSupportsCancellation = true;
-            //bw.DoWork += Bw_DoWork;
+        //public void Start()
+        //{
+        //    UO.PrintInformation("Debug Heal ON");
+        //    Running = true;
+        //    //bw = new BackgroundWorker();
+        //    //bw.WorkerSupportsCancellation = true;
+        //    //bw.DoWork += Bw_DoWork;
 
 
-            ev.OnCrystalChange += Ev_OnCrystalOn;
-            ev.OnMusicDone += Ev_OnMusicDone;
-            ev.OnParalyze += Ev_OnParalyze;
-            ev.OnRessurectionDone += Ev_OnRessurectionDone;
-            HealRunning(ref Running);
-           // bw.RunWorkerAsync();
-        }
+        //    ev.OnCrystalChange += Ev_OnCrystalOn;
+        //    ev.OnMusicDone += Ev_OnMusicDone;
+        //    ev.OnParalyze += Ev_OnParalyze;
+        //    ev.OnRessurectionDone += Ev_OnRessurectionDone;
+        //    HealRunning(ref Running);
+        //   // bw.RunWorkerAsync();
+        //}
 
 
-        public void Stop()
-        {
-            UO.PrintInformation("Debug Heal OFF");
-            Running = false;
-            //if (bw != null)
-            //{
-            //    bw.CancelAsync();
-            //    bw.DoWork -= Bw_DoWork;
-            //}
+        //public void Stop()
+        //{
+        //    UO.PrintInformation("Debug Heal OFF");
+        //    Running = false;
+        //    //if (bw != null)
+        //    //{
+        //    //    bw.CancelAsync();
+        //    //    bw.DoWork -= Bw_DoWork;
+        //    //}
 
-            ev.OnCrystalChange -= Ev_OnCrystalOn;
-            ev.OnMusicDone -= Ev_OnMusicDone;
-            ev.OnParalyze -= Ev_OnParalyze;
-            ev.OnRessurectionDone -= Ev_OnRessurectionDone;
-        }
+        //    ev.OnCrystalChange -= Ev_OnCrystalOn;
+        //    ev.OnMusicDone -= Ev_OnMusicDone;
+        //    ev.OnParalyze -= Ev_OnParalyze;
+        //    ev.OnRessurectionDone -= Ev_OnRessurectionDone;
+        //}
 
         #region Events Handle
         private void Ev_OnRessurectionDone(object sender, EventArgs e)
@@ -115,10 +195,10 @@ namespace Project_E.Lib.Healing
         #endregion
 
 
-        private void HealRunning(ref bool On)
+        private void HealRunning()
         {
             Patient temp;
-            while (On)
+            while (true)
             {
                 UO.Wait(100);
                 if (Paralyze && Settings.AutoHarm)
@@ -130,7 +210,7 @@ namespace Project_E.Lib.Healing
                 {
                     Bandage();
                 }
-                if (World.Player.Hidden || !RessurectDone || Paralyze) continue;
+                if (World.Player.Hidden || !RessurectDone || Paralyze || HealOnOff) continue;
                 temp = HP.GetPatient(PatientMinHits);
                 if (temp == null)
                 {
@@ -152,7 +232,7 @@ namespace Project_E.Lib.Healing
                             if ((DateTime.Now - StartBandage).TotalSeconds > 7)
                             {
                                 BandageDone = true;
-                                UO.Print("Error");
+                                UO.Print("Error - Too long bandage");
                             }
                         }
                         temp = null;

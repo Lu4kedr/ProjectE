@@ -37,14 +37,14 @@ namespace Project_E
             {
                 HealON = false;
                 UO.PrintError("Heal Off");
-                Main.Instance.AH.Stop();
+                Main.Instance.AH.HealOnOff = false; 
 
             }
             else
             {
                 HealON = true;
                 UO.PrintInformation("Heal On");
-                Main.Instance.AH.Start();
+                Main.Instance.AH.HealOnOff = true;
 
             }
         }
@@ -255,7 +255,7 @@ namespace Project_E
             Aliases.SetObject("SpellTarget", target);
             if (Main.Instance.AH.Running)
             {
-                Main.Instance.AH.Stop();
+                Main.Instance.AH.HealOnOff=false;
                 if (spellname == "frostbolt" || spellname == "necrobolt")
                 {
                     UO.Say("." + spellname);
@@ -273,8 +273,10 @@ namespace Project_E
                     if (DateTime.Now - StatSpell > TimeSpan.FromMilliseconds(delay))
                     {
                         Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+                        Main.Instance.AH.HealOnOff=true;
                         break;
                     }
+                    UO.Wait(100);
                 }
             }
             else
@@ -289,10 +291,11 @@ namespace Project_E
 
         }
 
-        private void SM_OnSpellDone(object sender, Lib.SpellManager.SpellManager.OnSpellDoneArgs e)
+        private void SM_OnSpellDone(object sender, SpellManager.OnSpellDoneArgs e)
         {
+            UO.Print("FIZZ");
             SpellFizz = true;
-            Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+            Main.Instance.AH.HealOnOff=true;
         }
 
         [Command]

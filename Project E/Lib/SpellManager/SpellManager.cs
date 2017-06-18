@@ -112,12 +112,13 @@ namespace Project_E.Lib.SpellManager
             AsciiSpeech a = new AsciiSpeech(data);
             if(a.Text.ToLowerInvariant().Contains("kouzlo se nezdarilo."))
             {
+
                 EventHandler<OnSpellDoneArgs> temp = OnSpellDone;
-                if( temp!=null)
+                if (temp != null)
                 {
-                    foreach(EventHandler<OnSpellDoneArgs> ev in temp.GetInvocationList())
+                    foreach (EventHandler<OnSpellDoneArgs> ev in temp.GetInvocationList())
                     {
-                        ev.BeginInvoke(this, new OnSpellDoneArgs() {Fizzed=true, Spell= LastSpell}, null, null);
+                        ev.BeginInvoke(this, new OnSpellDoneArgs() { Fizzed = true, Spell = LastSpell }, null, null);
                     }
                 }
             }
