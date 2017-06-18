@@ -26,21 +26,21 @@ namespace Project_E.Lib.DrinkManager
             PotionCounter = new Dictionary<UOColor, Potion>()
             {
                 {0x0160, new Potion(){Name="Greater Heal", Amount=0, Command=".potionheal"}},
-                {0x0059, new Potion(){Name="Spell Shield", Amount=0}},
-                {0x00C5, new Potion(){Name="Greater Energy", Amount=0}},
+                {0x0059, new Potion(){Name="Spell Shield", Amount=0, Command="_"}},
+                {0x00C5, new Potion(){Name="Greater Energy", Amount=0, Command="_"}},
                 {0x0447, new Potion(){Name="Invisibility", Amount=0, Command=".potioninvis"}},
                 {0x002B, new Potion(){Name="Cure", Amount=0, Command=".potioncure"}},
-                {0x047D, new Potion(){Name="Great Cleverness", Amount=0}},
+                {0x047D, new Potion(){Name="Great Cleverness", Amount=0, Command="_"}},
                 {0x073E, new Potion(){Name="Cleverness", Amount=0, Command=".potionclever"}},
                 {0x076B, new Potion(){Name="Greater Strength", Amount=0, Command=".potionstrength"}},
                 {0x0388, new Potion(){Name="Strength", Amount=0, Command=".potionstrength"}},
-                {0x0995, new Potion(){Name="Shrink", Amount=0}},
+                {0x0995, new Potion(){Name="Shrink", Amount=0, Command="_"}},
                 {0x0985, new Potion(){Name="Reflection", Amount=0, Command=".potionreflex"}},
                 {0x000F, new Potion(){Name="Mobility", Amount=0, Command=".potionmobility"}},
-                {0x0993, new Potion(){Name="Dispell Explosion", Amount=0}},
+                {0x0993, new Potion(){Name="Dispell Explosion", Amount=0, Command="_"}},
                 {0x00ED, new Potion(){Name="Greater Refresh", Amount=0, Command=".potionrefresh"}},
-                {0x0027, new Potion(){Name="Refresh", Amount=0}},
-                {0x0179, new Potion(){Name="Greater Poison", Amount=0} },
+                {0x0027, new Potion(){Name="Refresh", Amount=0, Command="_"}},
+                {0x0179, new Potion(){Name="Greater Poison", Amount=0, Command="_"} },
                 {0x0980, new Potion(){Name="Nightsight", Amount=0, Command=".potionnightsight"} }
             
 
@@ -93,11 +93,12 @@ namespace Project_E.Lib.DrinkManager
         private CallbackResult OnPotionRequest(byte[] data, CallbackResult prevState)
         {
             UnicodeSpeechRequest a = new UnicodeSpeechRequest(data);
-            if(PotionDelays.ContainsKey(a.Text))
+
+            if (PotionDelays.ContainsKey(a.Text))
             {
-                foreach(var it in PotionCounter.Values.Where(x=>x.Command.Equals(a.Text)).ToList())
+                foreach(var it in PotionCounter.Values)//.Where(x=>x.Command.Equals(a.Text)).ToList())
                 {
-                    if(it.Amount==0) return CallbackResult.Eat; 
+                    if(it.Command.Equals(a.Text) && it.Amount==0) return CallbackResult.Eat; 
                 }
                 if (DateTime.Now-DrinkTime>TimeSpan.FromSeconds(LastDrinkDelay))
                 {
@@ -145,14 +146,14 @@ namespace Project_E.Lib.DrinkManager
         
         private int CountPotion()
         {
-            int tmp;
+            Potion tmp;
             int PotionsCount = 0;
             foreach (UOItem it in World.Player.Backpack.AllItems.Where(x => x.Graphic == 0x0F0E && PotionCounter.ContainsKey(x.Color)).ToList()) 
             {
-                tmp = PotionCounter[it.Color].Amount;
-                PotionCounter[it.Color] = new Potion() {Name= PotionCounter[it.Color].Name, Amount=it.Amount };
+                tmp = PotionCounter[it.Color];
+                PotionCounter[it.Color] = new Potion() {Name= PotionCounter[it.Color].Name, Amount=it.Amount, Command=tmp.Command};
                 PotionsCount += it.Amount;
-                if(it.Amount<tmp)
+                if(it.Amount<tmp.Amount)
                 {
                     EventHandler<PotionLoseArgs> temp = OnPotionLose;
                     if(temp!=null)
@@ -161,12 +162,12 @@ namespace Project_E.Lib.DrinkManager
                         {
                             ev.BeginInvoke(this, new PotionLoseArgs()
                             {
-                                Potion = new Potion() { Amount = it.Amount, Name = PotionCounter[it.Color].Name }
+                                Potion = new Potion() { Amount = it.Amount, Name = tmp.Name, Command=tmp.Command }
                             }, null, null);
                         }
                     }
                 }
-                Thread.Sleep(50);
+                UO.Wait(50);
             }
             return PotionsCount;
         }
