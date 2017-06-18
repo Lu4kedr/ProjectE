@@ -14,7 +14,8 @@ namespace Project_E.Lib.WallManager
         private WallCollection Collection;
         private DateTime WallCall;
         private int TmpCounter = 0;
-        BackgroundWorker bw;
+        //BackgroundWorker bw;
+        System.Timers.Timer bw;
 
 
         public WallManager()
@@ -22,58 +23,86 @@ namespace Project_E.Lib.WallManager
             Core.RegisterServerMessageCallback(0x1C, onWallSpeech);
             Core.RegisterServerMessageCallback(0x1A, OnBuildWall, CallbackPriority.Lowest);
             Collection = new WallCollection();
-            Collection.Changed += Collection_Changed;
-            bw = new BackgroundWorker();
-            bw.WorkerSupportsCancellation = true;
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
+            bw = new System.Timers.Timer(10000);
+            bw.Elapsed += Bw_Elapsed;
+            bw.Start();
+            //Collection.Changed += Collection_Changed;
+            //bw = new BackgroundWorker();
+            //bw.WorkerSupportsCancellation = true;
+            //bw.DoWork += Bw_DoWork;
+            //bw.RunWorkerAsync();
         }
 
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        private void Bw_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             List<Wall> tmp = Collection.GetList();
             DateTime delayedPrint = DateTime.Now;
-            while(!bw.CancellationPending)
+
+            foreach (Wall w in tmp)
             {
-                foreach(Wall w in tmp)
+                if (DateTime.Now - w.CreateTime < TimeSpan.FromSeconds((int)w.Type))
                 {
-                    if (DateTime.Now - w.CreateTime < TimeSpan.FromSeconds((int)w.Type))
+                    if (!new UOItem(w.Serial).Exist)
                     {
-                        if (!new UOItem(w.Serial).Exist)
-                        {
-                            Collection.Remove(w);
-                        }
-                        if (w.Distance<17)
-                        {
-                            UO.PrintObject(w.Serial, ((int)w.Type - (int)(DateTime.Now - w.CreateTime).TotalSeconds).ToString());
-                            delayedPrint = DateTime.Now;
-                        }
+                        Collection.Remove(w);
                     }
-                    else Collection.Remove(w);
-                    Thread.Sleep(200);
+                    if (w.Distance < 17)
+                    {
+                        UO.PrintObject(w.Serial, ((int)w.Type - (int)(DateTime.Now - w.CreateTime).TotalSeconds).ToString());
+                        delayedPrint = DateTime.Now;
+                    }
                 }
-
-                while (DateTime.Now - delayedPrint < TimeSpan.FromSeconds(10))
-                {
-                    if (bw.CancellationPending)return;
-                    Thread.Sleep(1000);
-                }
-                Thread.Sleep(500);
+                else Collection.Remove(w);
             }
+
+
         }
 
-        private void Collection_Changed(object sender, EventArgs e)
-        {
-            Collection.Changed -= Collection_Changed;
-            bw.CancelAsync();
-            bw = null;
-            UO.Wait(200);
-            bw = new BackgroundWorker();
-            bw.WorkerSupportsCancellation = true;
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
-            Collection.Changed += Collection_Changed;
-        }
+        //private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        //{
+        //    List<Wall> tmp = Collection.GetList();
+        //    DateTime delayedPrint = DateTime.Now;
+        //    while(!bw.CancellationPending)
+        //    {
+        //        foreach(Wall w in tmp)
+        //        {
+        //            if (DateTime.Now - w.CreateTime < TimeSpan.FromSeconds((int)w.Type))
+        //            {
+        //                if (!new UOItem(w.Serial).Exist)
+        //                {
+        //                    Collection.Remove(w);
+        //                }
+        //                if (w.Distance<17)
+        //                {
+        //                    UO.PrintObject(w.Serial, ((int)w.Type - (int)(DateTime.Now - w.CreateTime).TotalSeconds).ToString());
+        //                    delayedPrint = DateTime.Now;
+        //                }
+        //            }
+        //            else Collection.Remove(w);
+        //            Thread.Sleep(200);
+        //        }
+
+        //        while (DateTime.Now - delayedPrint < TimeSpan.FromSeconds(10))
+        //        {
+        //            if (bw.CancellationPending)return;
+        //            Thread.Sleep(1000);
+        //        }
+        //        Thread.Sleep(500);
+        //    }
+        //}
+
+        //private void Collection_Changed(object sender, EventArgs e)
+        //{
+        //    Collection.Changed -= Collection_Changed;
+        //    bw.CancelAsync();
+        //    bw = null;
+        //    UO.Wait(200);
+        //    bw = new BackgroundWorker();
+        //    bw.WorkerSupportsCancellation = true;
+        //    bw.DoWork += Bw_DoWork;
+        //    bw.RunWorkerAsync();
+        //    Collection.Changed += Collection_Changed;
+        //}
 
         CallbackResult onWallSpeech(byte[] data, CallbackResult prevResult) // 0x1C
         {
