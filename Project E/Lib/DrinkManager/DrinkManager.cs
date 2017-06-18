@@ -15,9 +15,11 @@ namespace Project_E.Lib.DrinkManager
         Dictionary<UOColor, Potion> PotionCounter;
         Dictionary<string, int> PotionDelays;
         private int PotionsCount;
-        BackgroundWorker bw;
+        //BackgroundWorker bw;
         DateTime DrinkTime=DateTime.Now;
         int LastDrinkDelay=0;
+        System.Timers.Timer bw;
+        bool Annouced = false;
 
         public DrinkManager()
         {
@@ -61,12 +63,31 @@ namespace Project_E.Lib.DrinkManager
             };
 
 
-            bw = new BackgroundWorker();
-            bw.WorkerSupportsCancellation = true;
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
-            OnPotionLose += DrinkManager_OnPotionLose;
+            //bw = new BackgroundWorker();
+            //bw.WorkerSupportsCancellation = true;
+            //bw.DoWork += Bw_DoWork;
+            //bw.RunWorkerAsync();
+            //OnPotionLose += DrinkManager_OnPotionLose;
+
+            bw = new System.Timers.Timer(500);
+            bw.Elapsed += Bw_Elapsed;
+            bw.Start();
             Core.RegisterClientMessageCallback(0xAD, OnPotionRequest);
+        }
+
+        private void Bw_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (DateTime.Now - DrinkTime > TimeSpan.FromSeconds(LastDrinkDelay))
+            {
+                if (!Annouced)
+                {
+                    UO.PrintInformation("Muzes Pit!");
+                    World.Player.Print("Muzes Pit!");
+                    Annouced = true;
+                }
+            }
+            else Annouced = false;
+            PotionsCount = CountPotion();
         }
 
         private CallbackResult OnPotionRequest(byte[] data, CallbackResult prevState)
@@ -101,25 +122,25 @@ namespace Project_E.Lib.DrinkManager
                 UO.PrintError("Dosel potion {0}", e.Potion.Name);
         }
 
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            bool Annouced = false;
-            while(!bw.CancellationPending)
-            {
-                if (DateTime.Now - DrinkTime > TimeSpan.FromSeconds(LastDrinkDelay))
-                {
-                    if (!Annouced)
-                    {
-                        UO.PrintInformation("Muzes Pit!");
-                        World.Player.Print("Muzes Pit!");
-                        Annouced = true;
-                    }
-                }
-                else Annouced = false;
-                Thread.Sleep(500);
-                PotionsCount = CountPotion();
-            }
-        }
+        //private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        //{
+        //    bool Annouced = false;
+        //    while(!bw.CancellationPending)
+        //    {
+        //        if (DateTime.Now - DrinkTime > TimeSpan.FromSeconds(LastDrinkDelay))
+        //        {
+        //            if (!Annouced)
+        //            {
+        //                UO.PrintInformation("Muzes Pit!");
+        //                World.Player.Print("Muzes Pit!");
+        //                Annouced = true;
+        //            }
+        //        }
+        //        else Annouced = false;
+        //        Thread.Sleep(500);
+        //        PotionsCount = CountPotion();
+        //    }
+        //}
 
         
         private int CountPotion()
