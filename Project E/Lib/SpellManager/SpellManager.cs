@@ -16,6 +16,7 @@ namespace Project_E.Lib.SpellManager
     public class SpellManager
     {
         public event EventHandler<OnSpellDoneArgs> OnSpellDone;
+        
         private byte[] LastData;
         private SettingsGUI Settings;
         DateTime StartCast=DateTime.Now;
@@ -37,14 +38,61 @@ namespace Project_E.Lib.SpellManager
             { ".necrobolt", 3100 },  // Necrobolt
             { "12", 1500 },         // Harm
             { "37", 3500 },         // Mindblast
-            { "44", 3300 }          // Invis
+            { "44", 3300 },         // Invis
+            { "38", 5000 }          // paralyze
         };
 
 
+        public static string Name2Code(string name)
+        {
+            string rtrn;
+            switch(name)
+            {
+                default:
+                    rtrn = "Unknown";
+                    break;
+                case "Fireball":
+                    rtrn = "18";
+                    break;
+                case "Flame":
+                    rtrn = "52";
+                    break;
+                case "Meteor":
+                    rtrn = "55";
+                    break;
+                case "Lighting":
+                    rtrn = "40";
+                    break;
+                case "Bolt":
+                    rtrn = "42";
+                    break;
+                case "frostbolt":
+                    rtrn = ".frostbolt";
+                    break;
+                case "necrobolt":
+                    rtrn = ".necrobolt";
+                    break;
+                case "Harm":
+                    rtrn = "12";
+                    break;
+                case "Mind":
+                    rtrn = "37";
+                    break;
+                case "Invis":
+                    rtrn = "44";
+                    break;
+
+                case "Paralyze":
+                    rtrn = "38";
+                    break;
+
+            }
+            return rtrn;
+        }
         public SpellManager(SettingsGUI settings, Action sacrafire, Action bandage)
         {
-            Core.RegisterClientMessageCallback(0x12, SpellReq);
-            Core.RegisterClientMessageCallback(0xAD, OnCustomSpell);
+            //Core.RegisterClientMessageCallback(0x12, SpellReq, CallbackPriority.High);
+            //Core.RegisterClientMessageCallback(0xAD, OnCustomSpell);
             Core.RegisterServerMessageCallback(0x1C, OnSpellFizz);
             Settings = settings;
             Sacrafire = sacrafire;
@@ -52,6 +100,22 @@ namespace Project_E.Lib.SpellManager
 
         }
 
+        public void Cast(string spellname, Serial target)
+        {
+            if (Settings.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Settings.Sacrafire ?? "40")) && Main.Instance.SGUI.AutoSacrafire)
+                Sacrafire();
+            if (World.Player.Hits < (World.Player.MaxHits - 7))
+                Bandage();
+            UO.Attack(target);
+            if (spellname == "frostbolt" || spellname == "necrobolt")
+            {
+                new UOCharacter(target).WaitTarget();
+                UO.Say("." + spellname);
+            }
+            else
+                UO.Cast(spellname, target);
+            StartCast = DateTime.Now;
+        }
 
         private void DecodedSpell()
         {

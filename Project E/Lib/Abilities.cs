@@ -28,9 +28,10 @@ namespace Project_E.Lib
                 }
                 if (target.Distance < 2)
                 {
+                    Journal.Clear();
                     target.WaitTarget();
                     UO.Say(".usehand");
-                    UO.Wait(200);
+                    Journal.WaitForText(true, 500, "Utok se nepovedl.", "Cil prilis daleko.", "Nevidis na cil.", "Nedosahnes na cil.");
                 }
 
             }
@@ -249,6 +250,7 @@ namespace Project_E.Lib
 
 
         }
+        
 
 
 

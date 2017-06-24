@@ -1,5 +1,6 @@
 ﻿using Phoenix;
 using Phoenix.WorldData;
+using System.Collections.Generic;
 
 namespace Project_E.Lib
 {
@@ -47,6 +48,28 @@ namespace Project_E.Lib
                 it.Move(ushort.MaxValue, Main.Instance.SGUI.LotBackpack);
                 UO.Wait(delay);
             }
+        }
+
+
+
+        public void sipky()
+        {
+            World.Player.Backpack.Changed += World_ItemAdded;
+        }
+
+
+        List<Serial> bolts = new List<Serial>();
+        private void World_ItemAdded(object sender, ObjectChangedEventArgs e)
+        {
+            UOItem tmp = new UOItem(e.ItemSerial);
+
+                if(tmp.Graphic== 0x1BFB)// && (tmp.X>200 || tmp.Y>200))
+                {
+                   if(tmp.Container!=World.Player.Backpack) bolts.Add(tmp);
+                    tmp.Click();
+                UO.Print(e.Type);
+                }
+            
         }
     }
 }

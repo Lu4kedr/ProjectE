@@ -33,7 +33,6 @@ namespace Project_E.Lib.DrinkManager
                 {0x047D, new Potion(){Name="Great Cleverness", Amount=0, Command="_"}},
                 {0x073E, new Potion(){Name="Cleverness", Amount=0, Command=".potionclever"}},
                 {0x076B, new Potion(){Name="Greater Strength", Amount=0, Command=".potionstrength"}},
-                {0x0388, new Potion(){Name="Strength", Amount=0, Command=".potionstrength"}},
                 {0x0995, new Potion(){Name="Shrink", Amount=0, Command="_"}},
                 {0x0985, new Potion(){Name="Reflection", Amount=0, Command=".potionreflex"}},
                 {0x000F, new Potion(){Name="Mobility", Amount=0, Command=".potionmobility"}},
@@ -67,7 +66,7 @@ namespace Project_E.Lib.DrinkManager
             //bw.WorkerSupportsCancellation = true;
             //bw.DoWork += Bw_DoWork;
             //bw.RunWorkerAsync();
-            //OnPotionLose += DrinkManager_OnPotionLose;
+            OnPotionLose += DrinkManager_OnPotionLose;
 
             bw = new System.Timers.Timer(500);
             bw.Elapsed += Bw_Elapsed;

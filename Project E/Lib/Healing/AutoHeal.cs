@@ -12,7 +12,7 @@ namespace Project_E.Lib.Healing
 {
     public class AutoHeal
     {
-        public bool Running = false;
+        //public bool Running = false;
         bool CrystalOn = false;
         bool BandageDone = true;
         public bool MusicDone = true;
@@ -27,34 +27,23 @@ namespace Project_E.Lib.Healing
         Weapons Weapon;
         Watcher ev;
         SettingsGUI Settings;
-        private bool paused = true;
-        System.Timers.Timer HealCycle;
+        private bool healRun = false;
         Patient temp;
+        int ParaX, ParaY;
+        private DateTime ResTime;
 
-        public bool HealOnOff
+        public bool ShamanCast { get;  set; }
+
+        public bool HealRun
         {
             get
             {
-                return paused;
+                return healRun;
             }
 
             set
             {
-                if(value)
-                {
-                    ev.OnCrystalChange += Ev_OnCrystalOn;
-                    ev.OnMusicDone += Ev_OnMusicDone;
-                    ev.OnParalyze += Ev_OnParalyze;
-                    ev.OnRessurectionDone += Ev_OnRessurectionDone;
-                }
-                else
-                {
-                    ev.OnCrystalChange -= Ev_OnCrystalOn;
-                    ev.OnMusicDone -= Ev_OnMusicDone;
-                    ev.OnParalyze -= Ev_OnParalyze;
-                    ev.OnRessurectionDone -= Ev_OnRessurectionDone;
-                }
-                paused = value;
+                healRun = value;
             }
         }
 
@@ -69,59 +58,90 @@ namespace Project_E.Lib.Healing
             PatientMinHits = PatientMinHP;
             SelfHarm = selfHarm;
             ev.OnBandageDone += Ev_OnBandageDone;
-            HealCycle = new System.Timers.Timer(200);
-            HealCycle.Elapsed += HealCycle_Elapsed;
-            HealCycle.Start();
+
+            ev.OnCrystalChange += Ev_OnCrystalOn;
+            ev.OnMusicDone += Ev_OnMusicDone;
+            ev.OnParalyze += Ev_OnParalyze;
+            ev.OnRessurectionDone += Ev_OnRessurectionDone;
+
 
         }
 
-        private void HealCycle_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            HealCycle.Elapsed -= HealCycle_Elapsed;
 
-            if (Paralyze && Settings.AutoHarm)
+
+        public void AutoHealing(ref bool Runn)
+        {
+            if (Runn)
             {
-                SelfHarm(false);
-                Paralyze = false;
+                HealRun = true;
+                UO.PrintInformation("Autoheal On");
             }
-            if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
+            try
             {
-                Bandage();
-            }
-            if (World.Player.Hidden || !RessurectDone || Paralyze || !HealOnOff)
-            {
-                HealCycle.Elapsed += HealCycle_Elapsed;
-                return;
-            }
-            temp = HP.GetPatient(PatientMinHits);
-            if (temp == null)
-            {
-                if (CrystalOn) UO.Say(CrystalCmd);
-                GetStatuses();
-            }
-            else
-            {
-                if (!MusicDone && temp.Character.Hits > 65)
+                while (Runn)
                 {
-                    temp = null;
-                }
-                else
-                {
-                    if (BandageDone)
-                        Bandage(temp);
+                    UO.Wait(200);
+
+
+                    if (World.Player.Hidden || !RessurectDone || Paralyze || ShamanCast)
+                    {
+                        if (Paralyze && Settings.AutoHarm)
+                        {
+                            Paralyze = false;
+                            SelfHarm(false);
+                        }
+                        if (Paralyze && (World.Player.X != ParaX || World.Player.Y != ParaY))
+                        {
+                            Paralyze = false;
+                        }
+                        if(!RessurectDone)
+                        {
+                            if(DateTime.Now-ResTime>TimeSpan.FromSeconds(10))
+                            {
+                                RessurectDone = true;
+                            }
+                        }
+                        continue;
+                    }
+                    if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
+                    {
+                        Bandage();
+                    }
+                    //UO.PrintInformation("Hleadam koho bandit");
+                    temp = HP.GetPatient(PatientMinHits);
+                    if (temp == null)
+                    {
+                        if (CrystalOn) UO.Say(CrystalCmd);
+                    }
                     else
                     {
-                        if ((DateTime.Now - StartBandage).TotalSeconds > 7)
+                        if (!MusicDone && temp.Character.Hits > 65)
                         {
-                            BandageDone = true;
-                            UO.Print("Error - Too long bandage");
+                            temp = null;
+                        }
+                        else
+                        {
+                            if (BandageDone)
+                                Bandage(temp);
+                            else
+                            {
+                                if ((DateTime.Now - StartBandage).TotalSeconds > 5)
+                                {
+                                    BandageDone = true;
+                                    UO.Print("Error - Too long bandage");
+                                }
+                            }
+                            temp = null;
                         }
                     }
-                    temp = null;
                 }
             }
-            HealCycle.Elapsed += HealCycle_Elapsed;
-
+            catch (Exception ex) { UO.PrintError(ex.Message); }
+            finally
+            {
+                HealRun = false;
+                UO.PrintError("Heal Off");
+            }
         }
 
         private void GetStatuses()
@@ -175,6 +195,8 @@ namespace Project_E.Lib.Healing
         private void Ev_OnParalyze(object sender, EventArgs e)
         {
             Paralyze = true;
+            ParaX = World.Player.X;
+            ParaY = World.Player.Y;
         }
 
         private void Ev_OnMusicDone(object sender, EventArgs e)
@@ -195,51 +217,7 @@ namespace Project_E.Lib.Healing
         #endregion
 
 
-        private void HealRunning()
-        {
-            Patient temp;
-            while (true)
-            {
-                UO.Wait(100);
-                if (Paralyze && Settings.AutoHarm)
-                {
-                    SelfHarm(false);
-                    Paralyze = false;
-                }
-                if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
-                {
-                    Bandage();
-                }
-                if (World.Player.Hidden || !RessurectDone || Paralyze || HealOnOff) continue;
-                temp = HP.GetPatient(PatientMinHits);
-                if (temp == null)
-                {
-                    if (CrystalOn) UO.Say(CrystalCmd);
-                    GetStatuses();
-                }
-                else
-                {
-                    if (!MusicDone && temp.Character.Hits > 65)
-                    {
-                        temp = null;
-                    }
-                    else
-                    {
-                        if (BandageDone)
-                            Bandage(temp);
-                        else
-                        {
-                            if ((DateTime.Now - StartBandage).TotalSeconds > 7)
-                            {
-                                BandageDone = true;
-                                UO.Print("Error - Too long bandage");
-                            }
-                        }
-                        temp = null;
-                    }
-                }
-            }
-        }
+
 
         //private void Bw_DoWork(object sender, DoWorkEventArgs e)
         //{
@@ -289,10 +267,11 @@ namespace Project_E.Lib.Healing
 
         private void Bandage(Patient temp)
         {
-            if (!BandageDone || temp.Character.Hits > PatientMinHits || temp.Character.Hits > 100 || temp.Character.Hits < 1 || temp.Character.Distance > 6) return;
+            if (!BandageDone || temp.Character.Hits < 1 || temp.Character.Distance > 6 || temp.Character.Hits > PatientMinHits || temp.Character.Hits > 100 ) return;
             BandageDone = false;
             StartBandage = DateTime.Now;
             if (!CrystalOn) UO.Say(CrystalCmd);
+            UO.Wait(50);
             temp.Heal(HealCmd);
             UO.Wait(200);
             if (Settings.KlerikShaman == 1 && CrystalOn)
@@ -332,12 +311,13 @@ namespace Project_E.Lib.Healing
                 Weapon.ActualWeapon.Equip();
             }
             
-            if (Running)GetStatuses();
+            if (HealRun) GetStatuses();
         }
 
         public void Res()
         {
-            RessurectDone = false;
+            ResTime = DateTime.Now;
+            bool first = true;
             UOItem bandage;
             if (Settings.KlerikShaman == 1)
                 bandage = new UOItem(World.Player.Backpack.AllItems.FindType(0x0E20));
@@ -347,10 +327,18 @@ namespace Project_E.Lib.Healing
             Journal.Clear();
             foreach (UOItem corps in World.Ground.Where(x => x.Graphic == 0x2006).ToList())
             {
+                if (first)
+                {
+                    RessurectDone = false;
+                    UO.Wait(200);
+                    first = false;
+                }
                 corps.WaitTarget();
                 bandage.Use();
                 UO.Wait(200);
                 if (Journal.Contains("Jako Priest nemuzes ozivovat")) continue;
+                if (Journal.Contains("Jako Shaman nemuzes takhle ozivovat.")) continue;
+
                 if (Journal.Contains("Duch neni ve "))
                 {
                     UO.Say(" dej WAR ");

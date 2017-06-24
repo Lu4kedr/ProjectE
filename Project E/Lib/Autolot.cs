@@ -331,14 +331,35 @@ namespace Project_E.Lib
             World.FindDistance = 4;
 
             // Check Gold & mesec
-                if (World.Player.Backpack.AllItems.FindType(0x0EED).Amount >= ushort.Parse(Main.Instance.SGUI.GoldLimit))
-                {
-                    UO.Say(".mesec");
-                }
-
-            foreach (UOItem it in World.Ground.Where(x => x.Graphic == 0x2006 && x.Items.CountItems() < 7).ToList())
+            if (World.Player.Backpack.AllItems.FindType(0x0EED).Amount >= ushort.Parse(Main.Instance.SGUI.GoldLimit))
             {
-                Lot(it);
+                UO.Say(".mesec");
+            }
+            // scissors and leather
+            if(Leather)
+            {
+                UOItem scissors = null;
+                foreach (var it in World.Player.Backpack.AllItems.Where(x => x.Graphic == 0x0F9E || x.Graphic == 0x0F9F))
+                {
+                    scissors = it;
+                }
+                if(scissors !=null)
+                {
+                    foreach (var le in World.Player.Backpack.AllItems.Where(x => x.Graphic == 0x1078))
+                    {
+                        le.WaitTarget();
+                        scissors.Use();
+                    }
+
+                }
+            }
+
+            if (!World.Player.Hidden)
+            {
+                foreach (UOItem it in World.Ground.Where(x => x.Graphic == 0x2006 && x.Items.CountItems() < 7).ToList())
+                {
+                    Lot(it);
+                }
             }
         }
 

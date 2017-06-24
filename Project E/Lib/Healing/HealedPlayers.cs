@@ -68,9 +68,10 @@ namespace Project_E.Lib.Healing
         /// <returns></returns>
         public Patient GetPatient(int MinimalHits)
         {
-            foreach (var p in Patients)
+            foreach (var p in Patients.Where(x=>x.Character.Distance<7 && x.Character.Hits<0))
             {
-                p.Character.RequestStatus(10);
+                //if (p.Character.Hits < 0)
+                    p.Character.RequestStatus(10);
             }
             List<Patient> temp = Patients.Where(x=>x.Character.Hits<MinimalHits && x.Character.Distance<7).ToList();
             temp.Sort((x, y) => x.Character.Hits.CompareTo(y.Character.Hits));

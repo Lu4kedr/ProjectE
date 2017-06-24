@@ -85,6 +85,7 @@
     <Compile Include="Lib\SwitcheableHotkeys.cs" />
     <Compile Include="Lib\Targeting.cs" />
     <Compile Include="Lib\TreasureMap.cs" />
+    <Compile Include="Lib\VoodooAFKBoost.cs" />
     <Compile Include="Lib\WallManager\Wall.cs" />
     <Compile Include="Lib\WallManager\WallCollection.cs" />
     <Compile Include="Lib\WallManager\WallManager.cs" />

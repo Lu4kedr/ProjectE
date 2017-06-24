@@ -738,7 +738,7 @@ namespace Mining
 						UO.Wait(200);
 						if (TopMonster.Any(c => c == ch.Name.ToLowerInvariant()))
 						{
-							if (ch.Distance > 3)
+							if (ch.Distance > 0)
 							{
 								UO.Say(".potioninvis");
 								UO.Say(".recallhome");

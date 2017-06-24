@@ -280,7 +280,7 @@ namespace Project_E
         }
         private void WT_OnParalyze(object sender, EventArgs e)
         {
-            if (SGUI.AutoHarm && !AH.Running) SK.HarmSelf(false);
+            if (SGUI.AutoHarm && !AH.HealRun) SK.HarmSelf(false);
         }
 
         private short LastHitDecrease;

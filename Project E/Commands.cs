@@ -31,20 +31,30 @@ namespace Project_E
         }
 
         [Command]
+        public void sipky()
+        {
+            Main.Instance.FA.sipky();
+        }
+
+        [Command]
         public void heal()
         {
             if (HealON)
             {
                 HealON = false;
-                UO.PrintError("Heal Off");
-                Main.Instance.AH.HealOnOff = false; 
+                //Main.Instance.AH.HealOnOff = false; 
+               // Main.Instance.AH.AutoHealing(false);
+                //UO.PrintWarning("Autoheal Off");
+
 
             }
             else
             {
                 HealON = true;
-                UO.PrintInformation("Heal On");
-                Main.Instance.AH.HealOnOff = true;
+                //Main.Instance.AH.HealOnOff = true;
+                //UO.PrintWarning("Autoheal on");
+                Main.Instance.AH.AutoHealing(ref HealON);
+
 
             }
         }
@@ -247,67 +257,107 @@ namespace Project_E
         }
 
 
+        //[Command]
+        //public void nhcast(string spellname, Serial target)
+        //{
+        //    Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+        //    SpellFizz = false;
+        //    //Aliases.SetObject("SpellTarget", target);
+        //    if (HealON)
+        //    {
+        //        Main.Instance.AH.ShamanCast = true;
+        //        if (spellname == "frostbolt" || spellname == "necrobolt")
+        //        {
+        //            UO.Say("." + spellname);
+        //        }
+        //        else
+        //            UO.Cast(spellname);
+        //        var StatSpell = DateTime.Now;
+        //        int delay = 0;
+        //        spellname = SpellManager.Name2Code(spellname);
+        //        if (SpellManager.SpellDelays.ContainsKey(spellname))
+        //        {
+        //            delay = (SpellManager.SpellDelays[spellname] + 600);
+        //        }
+        //        while (!SpellFizz)
+        //        {
+        //            if (DateTime.Now - StatSpell > TimeSpan.FromMilliseconds(delay))
+        //            {
+        //                Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+        //                Main.Instance.AH.ShamanCast = false;
+        //                break;
+        //            }
+        //            UO.Wait(100);
+        //        }
+        //        Main.Instance.AH.ShamanCast = false;
+        //    }
+        //    else
+        //    if (spellname == "frostbolt" || spellname == "necrobolt")
+        //    {
+        //        UO.Say("." + spellname);
+        //    }
+        //    else
+        //    {
+        //        UO.Cast(spellname);
+        //    }
+
+        //}
+
         [Command]
         public void nhcast(string spellname, Serial target)
         {
             Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
             SpellFizz = false;
-            Aliases.SetObject("SpellTarget", target);
-            if (Main.Instance.AH.Running)
+            //Aliases.SetObject("SpellTarget", target);
+            if (HealON)
             {
-                Main.Instance.AH.HealOnOff=false;
-                if (spellname == "frostbolt" || spellname == "necrobolt")
-                {
-                    UO.Say("." + spellname);
-                }
-                else
-                    UO.Cast(spellname);
+                Main.Instance.AH.ShamanCast = true;
+                Main.Instance.SM.Cast(spellname, target);
                 var StatSpell = DateTime.Now;
                 int delay = 0;
+                spellname = SpellManager.Name2Code(spellname);
                 if (SpellManager.SpellDelays.ContainsKey(spellname))
                 {
-                    delay = SpellManager.SpellDelays[spellname];
+                    delay = (SpellManager.SpellDelays[spellname] + 300);
                 }
                 while (!SpellFizz)
                 {
                     if (DateTime.Now - StatSpell > TimeSpan.FromMilliseconds(delay))
                     {
                         Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
-                        Main.Instance.AH.HealOnOff=true;
+                        Main.Instance.AH.ShamanCast = false;
                         break;
                     }
                     UO.Wait(100);
                 }
+                Main.Instance.AH.ShamanCast = false;
             }
             else
-            if (spellname == "frostbolt" || spellname == "necrobolt")
-            {
-                UO.Say("." + spellname);
-            }
-            else
-            {
-                UO.Cast(spellname);
-            }
+                Main.Instance.SM.Cast(spellname, target);
+
 
         }
-
         private void SM_OnSpellDone(object sender, SpellManager.OnSpellDoneArgs e)
         {
-            UO.Print("FIZZ");
+            Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+            //UO.Print("FIZZ");
             SpellFizz = true;
-            Main.Instance.AH.HealOnOff=true;
+            UO.Wait(10);
+            Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+
         }
 
         [Command]
         public void ccast(string spellname, Serial target)
         {
-            Aliases.SetObject("SpellTarget", target);
-            if (spellname == "frostbolt" || spellname == "necrobolt")
-            {
-                UO.Say("." + spellname);
-            }
-            else
-                UO.Cast(spellname);
+            //Aliases.SetObject("SpellTarget", target);
+            //if (spellname == "frostbolt" || spellname == "necrobolt")
+            //{
+            //    UO.Say("." + spellname);
+            //}
+            //else
+            //    UO.Cast(spellname);
+            Main.Instance.SM.Cast(spellname, target);
 
         }
 
