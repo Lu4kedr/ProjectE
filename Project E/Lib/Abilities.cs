@@ -40,6 +40,20 @@ namespace Project_E.Lib
 
         }
 
+        public void bomba(WeaponsSet.Weapons weapons)
+        {
+            UOCharacter cil = new UOCharacter(Aliases.GetObject("laststatus"));
+            if (cil.Distance > 5)
+            {
+                UO.PrintError("Moc daleko");
+                return;
+            }
+            cil.WaitTarget();
+            UO.Say(".throwexplosion");
+            UO.Wait(100);
+            weapons.ActualWeapon.Equip();
+        }
+
         public void kudla(WeaponsSet.Weapons weapons)
         {
             UOCharacter cil = new UOCharacter(Aliases.GetObject("laststatus"));

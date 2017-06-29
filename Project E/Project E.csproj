@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoltLot.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="GUI\AddDialog.cs">
       <SubType>Form</SubType>

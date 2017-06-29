@@ -849,6 +849,8 @@ namespace Project_E
             ushort model = reader.ReadUInt16();
             if ((model == 0x000A) || (model == 0x0009)) model = 39;//demon-summ
             if ((model == 0x00AD)) model = 11;//elder spider
+            if ((model == 0x002F)) model = 990;//repear 
+            if ((model == 0x003A)) model = 990;//spirit 
             ByteConverter.BigEndian.ToBytes((ushort)model, data, 5);
             return CallbackResult.Normal;
 

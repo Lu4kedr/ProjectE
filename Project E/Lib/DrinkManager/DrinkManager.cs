@@ -68,7 +68,7 @@ namespace Project_E.Lib.DrinkManager
             //bw.RunWorkerAsync();
             OnPotionLose += DrinkManager_OnPotionLose;
 
-            bw = new System.Timers.Timer(500);
+            bw = new System.Timers.Timer(1000);
             bw.Elapsed += Bw_Elapsed;
             bw.Start();
             Core.RegisterClientMessageCallback(0xAD, OnPotionRequest);
@@ -76,7 +76,7 @@ namespace Project_E.Lib.DrinkManager
 
         private void Bw_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (DateTime.Now - DrinkTime > TimeSpan.FromSeconds(LastDrinkDelay))
+            if (DateTime.Now - DrinkTime > TimeSpan.FromSeconds(LastDrinkDelay+1))
             {
                 if (!Annouced)
                 {

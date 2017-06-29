@@ -30,11 +30,16 @@ namespace Project_E
             if (!e.State) hidoff();
         }
 
-        [Command]
-        public void sipky()
-        {
-            Main.Instance.FA.sipky();
-        }
+        //[Command]
+        //public void sipky()
+        //{
+        //    Main.Instance.FA.sipky();
+        //}
+        //[Command]
+        //public void sipky2()
+        //{
+        //    Main.Instance.FA.sipky2();
+        //}
 
         [Command]
         public void heal()
@@ -217,6 +222,12 @@ namespace Project_E
         public void kudla()
         {
             Main.Instance.AB.kudla(Main.Instance.SGUI.Weapons);
+        }
+
+        [Command]
+        public void bomba()
+        {
+            Main.Instance.AB.bomba(Main.Instance.SGUI.Weapons);
         }
 
         [Command,BlockMultipleExecutions]

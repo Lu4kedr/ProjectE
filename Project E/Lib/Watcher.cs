@@ -2,6 +2,7 @@
 using Phoenix.Communication.Packets;
 using Phoenix.WorldData;
 using System;
+using System.Linq;
 using System.ComponentModel;
 using System.Threading;
 
@@ -21,7 +22,7 @@ namespace Project_E.Lib
 
         readonly string[] musicDoneCalls = { " have no musical instrument ", "uklidneni se povedlo.", " neni co uklidnovat!", "uklidnovani nezabralo.", "tohle nemuzes ", "you play poorly.", "oslabeni uspesne.", "oslabeni se nepovedlo.", " tve moznosti." };
         readonly string[] crystalOnCalls = { " v normalnim stavu." ," schopen rychleji lecit ", " schopen lecit lepe.", " navracena spotrebovana magenergie.", " kouzlit za mene many." };
-        readonly string[] bandageDoneCalls = { " byl uspesne osetren", "leceni se ti nepovedlo.", "prestal krvacet", " neni zranen.", "nevidis na cil." };
+        readonly string[] bandageDoneCalls = { " byl uspesne osetren", "leceni se ti nepovedlo.", "prestal krvacet", " neni zranen.", "nevidis cil.","cil je moc daleko." };
         readonly string[] onHitCalls = { " cil krvaci.", "skvely zasah!", "kriticky zasah!", "vysavas staminu", "vysavas zivoty!" };
         readonly string[] ressurectionCalls = { "duch neni ve ", "ozivil jsi", "ozivila jsi" };
         readonly string[] onParaCalls = { "nohama ti projela silna bolest", "citis, ze se nemuzes hybat.", " crying awfully." };
@@ -45,7 +46,7 @@ namespace Project_E.Lib
             Core.RegisterServerMessageCallback(0x1C, OnCallsA);
             Core.RegisterServerMessageCallback(0x1C, OnCallsB);
             Player = World.Player;
-            bw = new System.Timers.Timer(200);
+            bw = new System.Timers.Timer(250);
             bw.Elapsed += Bw_Elapsed;
             bw.Start();
             //bw = new BackgroundWorker();
@@ -357,6 +358,53 @@ namespace Project_E.Lib
 
             return CallbackResult.Normal;
         }
+
+
+
+        CallbackResult OnCalls(byte[] data, CallbackResult prev)
+        {
+            var tmp = 0;
+            AsciiSpeech speech = new AsciiSpeech(data);
+            if (musicDoneCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 1;
+            if (crystalOnCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 2;
+            if (bandageDoneCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 3;
+            if (onHitCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 4;
+            if (ressurectionCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 5;
+            if (onParaCalls.Any(x => speech.Text.ToLowerInvariant().Contains(x))) tmp = 6;
+            switch(tmp)
+            {
+                case 0:
+                    return CallbackResult.Normal;
+                case 1:
+                    MusicDon = true;
+                    break;
+                case 2:
+                    CrystalOn = true;
+                    if (crystalOnCalls[0] == (crystalOnCalls.First(x=>speech.Text.ToLowerInvariant().Contains(x))))
+                        CrystalState = false;
+                    else CrystalState = true;
+                    break;
+                case 3:
+                    BandageDon = true;
+                    break;
+                case 4:
+                    Onhit = true;
+                    break;
+                case 5:
+                    RessDon = true;
+                    break;
+                case 6:
+                    Paralyze = true;
+                    break;
+
+            }
+
+            return CallbackResult.Normal;
+        }
+
+
+
+
 
         CallbackResult OnCallsB(byte[] data, CallbackResult prev)
         {

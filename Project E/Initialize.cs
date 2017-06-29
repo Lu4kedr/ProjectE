@@ -27,7 +27,7 @@ namespace Project_E
         }
 
 
-        [ServerMessageHandler(0x1C)]
+        [ServerMessageHandler(0x1C,Priority =CallbackPriority.Lowest)]
         public CallbackResult onExp(byte[] data, CallbackResult prevResult)
         {
             AsciiSpeech packet = new AsciiSpeech(data);
@@ -47,7 +47,7 @@ namespace Project_E
 
 
 
-        [ServerMessageHandler(0x22)]
+        [ServerMessageHandler(0x22, Priority = CallbackPriority.Lowest)]
         public CallbackResult OnWalkRequestSucceeded(byte[] data, CallbackResult prevResult)
         {
             if (World.Player.Hidden)
@@ -74,7 +74,7 @@ namespace Project_E
         {
             if (prevResult < CallbackResult.Sent)
             {
-                if (data[1] > 18)//max 31-tma
+                if (data[1] > 16)//max 31-tma
                 {
                     byte[] newData = new byte[2];
                     newData[0] = 0x4F;

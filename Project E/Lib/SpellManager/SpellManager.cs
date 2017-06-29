@@ -19,7 +19,7 @@ namespace Project_E.Lib.SpellManager
         
         private byte[] LastData;
         private SettingsGUI Settings;
-        DateTime StartCast=DateTime.Now;
+        public DateTime StartCast=DateTime.Now;
         Action Sacrafire;
         Action Bandage;
         public string LastSpell { get; set; }
@@ -109,12 +109,21 @@ namespace Project_E.Lib.SpellManager
             UO.Attack(target);
             if (spellname == "frostbolt" || spellname == "necrobolt")
             {
-                new UOCharacter(target).WaitTarget();
+                if (target.IsValid)
+                    UO.WaitTargetObject(target);
+                else throw new ScriptErrorException("Invalid Target");
                 UO.Say("." + spellname);
             }
             else
-                UO.Cast(spellname, target);
+            {
+                if (target.IsValid)
+                    UO.WaitTargetObject(target);
+                else throw new ScriptErrorException("Invalid Target");
+                UO.Cast(spellname);
+            }
             StartCast = DateTime.Now;
+            UO.Wait(200);
+            if (UIManager.CurrentState == UIManager.State.WaitTarget) UIManager.Reset();
         }
 
         private void DecodedSpell()

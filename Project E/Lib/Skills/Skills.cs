@@ -187,6 +187,7 @@ namespace Project_E.Lib.Skills
         private bool getHit;
         public void Hiding(bool first)
         {
+            bandage b = new bandage(Main.Instance.AH.Bandage);
             Core.UnregisterClientMessageCallback(0x02, makeStep);
             getHit = false;
             Main.Instance.WT.HitsChanged += WT_HitsChanged;
@@ -200,6 +201,7 @@ namespace Project_E.Lib.Skills
             {
                 if (getHit)
                 {
+                    
                     Core.UnregisterClientMessageCallback(0x02, makeStep);
                     Main.Instance.WT.HitsChanged -= WT_HitsChanged;
                     if (first) Hiding(false);
@@ -215,17 +217,23 @@ namespace Project_E.Lib.Skills
                     World.Player.Print("1");
                     step--;
 
-                    Core.RegisterClientMessageCallback(0x02, makeStep);
+                    Core.RegisterClientMessageCallback(0x02, makeStep, CallbackPriority.Highest);
                 }
                 UO.Wait(10);
             }
-            if (Journal.WaitForText(true, 300, "Nepovedlo se ti schovat.", "Skryti se povedlo."))
+            if (Journal.WaitForText(true, 300, "nepovedlo se ti schovat.", "skryti se povedlo."))
             {
                 UO.Wait(100);
                 if (!World.Player.Hidden)
                     Core.UnregisterClientMessageCallback(0x02, makeStep);
+                else
+                    b.BeginInvoke(null, null);
             }
-            else Core.UnregisterClientMessageCallback(0x02, makeStep);
+            else
+            {
+                Core.UnregisterClientMessageCallback(0x02, makeStep);
+
+            }
             Main.Instance.WT.HitsChanged -= WT_HitsChanged;
 
         }
@@ -256,9 +264,9 @@ namespace Project_E.Lib.Skills
                 pw.Write(seq);
                 pw.Write(fwalkPrev);
                 Core.SendToServer(pw.GetBytes());
-                return CallbackResult.Sent;
+                return CallbackResult.Eat;
             }
-
+            
             return CallbackResult.Normal;
         }
         #endregion
@@ -281,7 +289,7 @@ namespace Project_E.Lib.Skills
                 start = DateTime.Now;
             }
             else return;
-            while (DateTime.Now - start < TimeSpan.FromSeconds(8)) UO.Wait(100);
+            while (DateTime.Now - start < TimeSpan.FromSeconds(9)) UO.Wait(100);
             UO.PrintError("Reactiv vyprsel");
         }
 
