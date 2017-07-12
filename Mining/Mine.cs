@@ -76,7 +76,7 @@ namespace Mining
 				}
 			}));
 			Core.Window.FormClosing += Window_FormClosing;
-			Core.Disconnected += Core_Disconnected;
+
 
 
 
@@ -84,11 +84,6 @@ namespace Mining
 
 		}
 
-		private void Core_Disconnected(object sender, EventArgs e)
-		{
-			XmlSerializeHelper<Settings>.Save("Mining", Instance.Settings, false);
-			Core.Window.FormClosing -= Window_FormClosing;
-		}
 
 		private void Window_FormClosing(object sender, FormClosingEventArgs e)
 		{
@@ -154,12 +149,17 @@ namespace Mining
 					if (Instance.Settings.AutoRemoveRocks)
 					{
 						CheckCK();
-						int tmp = 3300 - (int)(DateTime.Now - StartMine).TotalMilliseconds;
-						if (tmp > 0)
-						{
-							Thread.Sleep(tmp);
-						}
-						Instance.Settings.Maps[Instance.Settings.ActualMapIndex].RemoveNearObstacles(MineHere);
+                        int tmp = 3300 - (int)(DateTime.Now - StartMine).TotalMilliseconds;
+                        if (tmp > 0)
+                        {
+                            for (double i = 0; i < tmp; i += tmp / 10)
+                            {
+                                if (i > 100) CheckCK();
+
+                                Thread.Sleep(tmp / 10);
+                            }
+                        }
+                        Instance.Settings.Maps[Instance.Settings.ActualMapIndex].RemoveNearObstacles(MineHere);
 					}
 				}
 			}
@@ -284,7 +284,7 @@ namespace Mining
 				{
 					for (double i = 0; i < tmp; i += tmp / 10)
 					{
-						CheckCK();
+						if(i>100)CheckCK();
 						
 						Thread.Sleep(tmp / 10);
 					}
@@ -295,14 +295,19 @@ namespace Mining
 					EmptyField = false;
 					return;
 				}
+				if (World.Player.Stamina < 50) UO.Say(".potionrefresh");
 				if (!CHeckTools() || MaxedWeight)
 				{
-					ActualPosition = new Point(World.Player.X, World.Player.Y);
-					Recall(0);
-					Unload();
-					Recall(1);
-					MoveTo(ActualPosition);
-					MaxedWeight = false;
+                    try
+                    {
+                        ActualPosition = new Point(World.Player.X, World.Player.Y);
+                        Recall(0);
+                        Unload();
+                        Recall(1);
+                        MoveTo(ActualPosition);
+                        MaxedWeight = false;
+                    }
+                    catch { }
 				}
 
 				if (Instance.Settings.UseCrystal && Try == 0)
@@ -333,24 +338,24 @@ namespace Mining
 			try
 			{
 				CheckCK();
-				if (item == null) return;
-				if (Try == 0)
-				{
-
-					EmptyField = false;
-				}
+				if (!item.Exist) return;
 				if (SkillDelay)
 				{
 					UO.Wait(5000);
 					SkillDelay = false;
 				}
-				int tmp = 3300 - (int)(DateTime.Now - StartMine).TotalMilliseconds;
-				if (tmp > 0)
-				{
-					Thread.Sleep(tmp);
-				}
+                int tmp = 3300 - (int)(DateTime.Now - StartMine).TotalMilliseconds;
+                if (tmp > 0)
+                {
+                    for (double i = 0; i < tmp; i += tmp / 10)
+                    {
+                        if (i > 100) CheckCK();
 
-				if (!CHeckTools() || MaxedWeight)
+                        Thread.Sleep(tmp / 10);
+                    }
+                }
+
+                if (!CHeckTools() || MaxedWeight)
 				{
 					ActualPosition = new Point(World.Player.X, World.Player.Y);
 					Recall(0);
@@ -381,12 +386,14 @@ namespace Mining
 		{
 
 			int tmpMapIndex = Instance.Settings.ActualMapIndex;
-			UOItem dltmp = new UOItem(Settings.DoorLeft);
+            Instance.Settings.ActualMapIndex = 0;
+            UOItem dltmp = new UOItem(Settings.DoorLeft);
 			UOItem drtmp = new UOItem(Settings.DoorRight);
 			if (dltmp.Graphic == Settings.DoorLeftClosedGraphic) dltmp.Use();
 			if (drtmp.Graphic == Settings.DoorRightClosedGraphic) drtmp.Use();
 
-			Instance.Settings.ActualMapIndex = 0;
+
+			UO.Wait(200);
 			MoveTo(Instance.Settings.HousePositionX, Instance.Settings.HousePositionY);
 
 			openBank(14);
@@ -399,20 +406,13 @@ namespace Mining
 			UOItem resourceBox = new UOItem(Instance.Settings.ResourceBox);
 			resourceBox.Use();
 
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Copper"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Iron"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Verite"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Valorite"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Kremicity"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Obsidian"]).Move(ushort.MaxValue, box);
-			//World.Player.Backpack.AllItems.FindType(Ore, Material["Adamantium"]).Move(ushort.MaxValue, box);
 
 			new UOItem(World.Player.Layers.First(x => x.Graphic == Ore)).WaitTarget();
 			UO.Say(".movetype");
 			box.WaitTarget();
 			UO.Wait(200);
 
-			foreach(var it in World.Player.Backpack.Items.Where(x=>x.Graphic==Ore))
+            foreach (var it in World.Player.Backpack.Items.Where(x => x.Graphic == Ore)) 
 			{
 				it.Move(ushort.MaxValue, box);
 			}
@@ -436,7 +436,7 @@ namespace Mining
 
 
 			tmpCnt = World.Player.Layers.Count(x => x.Graphic == 0x1407 || x.Graphic == 0x1406);
-			if (tmpCnt == 0 && (new UOItem(Instance.Settings.Weapon).Graphic== 0 || new UOItem(Instance.Settings.Weapon).Graphic == 0))
+            if (tmpCnt == 0 & (new UOItem(Instance.Settings.Weapon).Graphic == 0 || new UOItem(Instance.Settings.Weapon).Graphic == 0)) 
 			{
 				tmpCnt = resourceBox.AllItems.Count(x => x.Graphic == 0x1407 || x.Graphic == 0x1406);
 				if (tmpCnt == 0)
@@ -474,7 +474,7 @@ namespace Mining
 
 			MoveTo(Instance.Settings.RunePositionX, Instance.Settings.RunePositionY);
 			Instance.Settings.ActualMapIndex = tmpMapIndex;
-
+			UO.Wait(200);
 			Instance.Settings.AIron = 0;
 			Instance.Settings.ASilicon = 0;
 			Instance.Settings.AVerite = 0;
@@ -599,7 +599,7 @@ namespace Mining
 			
 			Instance.Settings.Maps[Instance.Settings.ActualMapIndex].FindObstacles();
 			Instance.Settings.Maps[Instance.Settings.ActualMapIndex].Fields.Sort((a, b) => a.Distance.CompareTo(b.Distance));
-			MineField tmp;
+            MineField tmp = null; 
 			try
 			{
 				tmp = Instance.Settings.Maps[Instance.Settings.ActualMapIndex].Fields.First(x => x.State == MineFieldState.Unknown);
@@ -622,17 +622,16 @@ namespace Mining
 			{
 				if(i%10==0)
 				{
+                    UO.Wait(100);
 					tmp = GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y));
+                    i = 0;
 				}
 				mov.moveToPosition(tmp[i]); 
 			}
 
 
 
-   //         foreach (Point p in GetWay(new Point(World.Player.X, World.Player.Y), new Point(X, Y)))
-			//{
-			//	mov.moveToPosition(p);
-			//}
+
 		}
 
 
@@ -711,7 +710,6 @@ namespace Mining
 
 		private void CheckCK()
 		{
-			//UO.PrintWarning("Degug {0}: CK CHeck", DateTime.Now);
 			// Check CK/Monster
 			World.FindDistance = 19;
 			foreach (var ch in World.Characters)
@@ -759,10 +757,11 @@ namespace Mining
 							try
 							{
 								UO.Say(Mine.Instance.Settings.FightSay);
-								Battle b = new Battle(MoveTo, moveXField, Recall, ch, Weapon);
-								b.Kill();
+								new Battle(MoveTo, moveXField, Recall, ch, Weapon).Kill();
+                                UO.Wait(100);
+
 							}
-							catch { }
+							catch(Exception ex) { UO.PrintError(ex.Message); }
 							finally
 							{
 								UO.Say(Mine.Instance.Settings.FightSay);

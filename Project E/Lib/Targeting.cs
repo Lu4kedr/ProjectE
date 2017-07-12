@@ -24,8 +24,6 @@ namespace Project_E.Lib
                 redList.Clear();
                 foreach (UOCharacter ch in World.Characters.Where(x => x.Notoriety > Notoriety.Criminal && x.Distance < 15 && x.Serial != World.Player.Serial && !x.Renamable))
                 {
-                    // if (ch.Distance > 10 || Array.IndexOf(Filter, ch.Notoriety) < 0 || ch.Serial == World.Player.Serial || ch.Renamable)
-                    //   continue;
                     redList.Add(ch);
                 }
                 sortedlist = redList.OrderBy(o => o.Distance).ToList();
@@ -42,7 +40,14 @@ namespace Project_E.Lib
 
             bool first = true;
             tryagain:
-            foreach (UOCharacter mob in World.Characters.Where(x => x.Notoriety > Notoriety.Guild && x.Distance < 19 && x.Serial != World.Player.Serial && !x.Renamable))
+            var list = World.Characters.Where(x => x.Notoriety > Notoriety.Criminal && x.Distance < 19 && x.Serial != World.Player.Serial && !x.Renamable).ToList();
+            if(list.Count<1)
+            {
+                list = World.Characters.Where(x => x.Distance < 19 && x.Serial != World.Player.Serial && !x.Renamable).ToList();
+
+
+            }
+            foreach (UOCharacter mob in list )
             {
                 //if (mob.Distance > 18 || Array.IndexOf(Filter, mob.Notoriety) < 0 || mob.Renamable) continue;
                 if (used.Contains(mob.Serial)) continue;

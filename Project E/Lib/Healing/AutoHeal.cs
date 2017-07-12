@@ -1,4 +1,5 @@
 ﻿using Phoenix;
+using Phoenix.Communication.Packets;
 using Phoenix.WorldData;
 using Project_E.GUI;
 using Project_E.Lib.WeaponsSet;
@@ -20,7 +21,7 @@ namespace Project_E.Lib.Healing
         bool Paralyze = false;
         int PatientMinHits;
         DateTime StartBandage = DateTime.Now;
-        Action<bool> SelfHarm;
+        Action<bool,bool> SelfHarm;
         string HealCmd;
         string CrystalCmd;
         HealedPlayers HP;
@@ -31,6 +32,12 @@ namespace Project_E.Lib.Healing
         Patient temp;
         int ParaX, ParaY;
         private DateTime ResTime;
+
+
+        readonly string[] crystalOnCalls = { " v normalnim stavu.", " schopen rychleji lecit ", " schopen lecit lepe.", " navracena spotrebovana magenergie.", " kouzlit za mene many." };
+        readonly string[] bandageDoneCalls = { " byl uspesne osetren", "leceni se ti nepovedlo.", "prestal krvacet", " neni zranen.", "nevidis cil.", "cil je moc daleko." };
+        readonly string[] ressurectionCalls = { "duch neni ve ", "ozivil jsi", "ozivila jsi" };
+        readonly string[] musicDoneCalls = { " have no musical instrument ", "uklidneni se povedlo.", " neni co uklidnovat!", "uklidnovani nezabralo.", "tohle nemuzes ", "you play poorly.", "oslabeni uspesne.", "oslabeni se nepovedlo.", " tve moznosti." };
 
         public bool ShamanCast { get;  set; }
 
@@ -47,7 +54,7 @@ namespace Project_E.Lib.Healing
             }
         }
 
-        public AutoHeal(HealedPlayers HealedPlayers, string HealCmd, string CrystalCmd, Weapons weapons, Watcher watcher, SettingsGUI settings, int PatientMinHP,Action<bool> selfHarm)
+        public AutoHeal(HealedPlayers HealedPlayers, string HealCmd, string CrystalCmd, Weapons weapons, Watcher watcher, SettingsGUI settings, int PatientMinHP,Action<bool,bool> selfHarm)
         {
             HP = HealedPlayers;
             this.HealCmd = HealCmd;
@@ -57,12 +64,12 @@ namespace Project_E.Lib.Healing
             Settings = settings;
             PatientMinHits = PatientMinHP;
             SelfHarm = selfHarm;
-            ev.OnBandageDone += Ev_OnBandageDone;
+            //ev.OnBandageDone += Ev_OnBandageDone;
 
-            ev.OnCrystalChange += Ev_OnCrystalOn;
-            ev.OnMusicDone += Ev_OnMusicDone;
+            //ev.OnCrystalChange += Ev_OnCrystalOn;
+            //ev.OnMusicDone += Ev_OnMusicDone;
             ev.OnParalyze += Ev_OnParalyze;
-            ev.OnRessurectionDone += Ev_OnRessurectionDone;
+            //ev.OnRessurectionDone += Ev_OnRessurectionDone;
 
 
         }
@@ -74,6 +81,7 @@ namespace Project_E.Lib.Healing
             if (Runn)
             {
                 HealRun = true;
+                Core.RegisterServerMessageCallback(0x1C, OnCalls);
                 UO.PrintInformation("Autoheal On");
             }
             try
@@ -88,7 +96,7 @@ namespace Project_E.Lib.Healing
                         if (Paralyze && Settings.AutoHarm)
                         {
                             Paralyze = false;
-                            SelfHarm(false);
+                            SelfHarm(false,false);
                         }
                         if (Paralyze && (World.Player.X != ParaX || World.Player.Y != ParaY))
                         {
@@ -140,6 +148,7 @@ namespace Project_E.Lib.Healing
             finally
             {
                 HealRun = false;
+                Core.UnregisterServerMessageCallback(0x1C, OnCalls);
                 UO.PrintError("Heal Off");
             }
         }
@@ -152,45 +161,13 @@ namespace Project_E.Lib.Healing
             }
         }
 
-        //public void Start()
+
+
+        //#region Events Handle
+        //private void Ev_OnRessurectionDone(object sender, EventArgs e)
         //{
-        //    UO.PrintInformation("Debug Heal ON");
-        //    Running = true;
-        //    //bw = new BackgroundWorker();
-        //    //bw.WorkerSupportsCancellation = true;
-        //    //bw.DoWork += Bw_DoWork;
-
-
-        //    ev.OnCrystalChange += Ev_OnCrystalOn;
-        //    ev.OnMusicDone += Ev_OnMusicDone;
-        //    ev.OnParalyze += Ev_OnParalyze;
-        //    ev.OnRessurectionDone += Ev_OnRessurectionDone;
-        //    HealRunning(ref Running);
-        //   // bw.RunWorkerAsync();
+        //    RessurectDone = true;
         //}
-
-
-        //public void Stop()
-        //{
-        //    UO.PrintInformation("Debug Heal OFF");
-        //    Running = false;
-        //    //if (bw != null)
-        //    //{
-        //    //    bw.CancelAsync();
-        //    //    bw.DoWork -= Bw_DoWork;
-        //    //}
-
-        //    ev.OnCrystalChange -= Ev_OnCrystalOn;
-        //    ev.OnMusicDone -= Ev_OnMusicDone;
-        //    ev.OnParalyze -= Ev_OnParalyze;
-        //    ev.OnRessurectionDone -= Ev_OnRessurectionDone;
-        //}
-
-        #region Events Handle
-        private void Ev_OnRessurectionDone(object sender, EventArgs e)
-        {
-            RessurectDone = true;
-        }
 
         private void Ev_OnParalyze(object sender, EventArgs e)
         {
@@ -199,71 +176,27 @@ namespace Project_E.Lib.Healing
             ParaY = World.Player.Y;
         }
 
-        private void Ev_OnMusicDone(object sender, EventArgs e)
-        {
-            MusicDone = true;
-        }
-
-        private void Ev_OnCrystalOn(object sender, OnCrystalChangeArgs e)
-        {
-            CrystalOn = e.On;
-        }
-
-        private void Ev_OnBandageDone(object sender, EventArgs e)
-        {
-            BandageDone = true;
-        }
-
-        #endregion
-
-
-
-
-        //private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        //private void Ev_OnMusicDone(object sender, EventArgs e)
         //{
-        //    Patient temp;
-        //    while (!bw.CancellationPending)
-        //    {
-        //        Thread.Sleep(100);
-        //        if (Paralyze && Settings.AutoHarm)
-        //        {
-        //            SelfHarm(false);
-        //            Paralyze = false;
-        //        }
-        //        if (World.Player.Hits < short.Parse(Settings == null ? "80" : Settings.Hits2Bandage ?? "80"))
-        //        {
-        //            Bandage();
-        //        }
-        //        if (World.Player.Hidden || !RessurectDone || Paralyze) continue;
-        //        temp = HP.GetPatient(PatientMinHits);
-        //        if (temp == null)
-        //        {
-        //            if (CrystalOn) UO.Say(CrystalCmd);
-        //            GetStatuses();
-        //        }
-        //        else
-        //        {
-        //            if (!MusicDone && temp.Character.Hits > 65)
-        //            {
-        //                temp = null;
-        //            }
-        //            else
-        //            {
-        //                if (BandageDone)
-        //                    Bandage(temp);
-        //                else
-        //                {
-        //                    if ((DateTime.Now - StartBandage).TotalSeconds > 7)
-        //                    {
-        //                        BandageDone = true;
-        //                        UO.Print("Error");
-        //                    }
-        //                }
-        //                temp = null;
-        //            }
-        //        }
-        //    }
+        //    MusicDone = true;
         //}
+
+        //private void Ev_OnCrystalOn(object sender, OnCrystalChangeArgs e)
+        //{
+        //    CrystalOn = e.On;
+        //}
+
+        //private void Ev_OnBandageDone(object sender, EventArgs e)
+        //{
+        //    BandageDone = true;
+        //}
+
+        //#endregion
+
+
+
+
+
 
         private void Bandage(Patient temp)
         {
@@ -351,6 +284,55 @@ namespace Project_E.Lib.Healing
                 }
 
             }
+        }
+
+
+
+
+        CallbackResult OnCalls(byte[] data, CallbackResult prev)
+        {
+            AsciiSpeech speech = new AsciiSpeech(data);
+            foreach (string s in ressurectionCalls)
+            {
+                if (speech.Text.ToLowerInvariant().Contains(s))
+                {
+                    RessurectDone = true;
+                    return CallbackResult.Normal;
+                }
+            }
+
+            foreach (string s in musicDoneCalls)
+            {
+                if (speech.Text.ToLowerInvariant().Contains(s))
+                {
+                    MusicDone = true;
+                    return CallbackResult.Normal;
+
+                }
+            }
+
+            foreach (string s in bandageDoneCalls)
+            {
+                if (speech.Text.ToLowerInvariant().Contains(s))
+                {
+                    BandageDone = true;
+                    return CallbackResult.Normal;
+
+                }
+            }
+            foreach (string s in crystalOnCalls)
+            {
+                if (speech.Text.ToLowerInvariant().Contains(s))
+                {
+                    if (crystalOnCalls[0] == s)
+                        CrystalOn = false;
+                    else CrystalOn = true;
+                    return CallbackResult.Normal;
+
+                }
+            }
+
+            return CallbackResult.Normal;
         }
     }
 }

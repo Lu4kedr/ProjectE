@@ -41,7 +41,7 @@ namespace Mining
             World.FindDistance = 15;
             foreach (UOItem it in World.Ground.Where(x => Obsatcles.Any(a => x.Graphic.Equals(a))))
             {
-                MineField tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
+                var tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
                 if (tmp == null) continue;
                // UO.PrintInformation("Zaval zaregistrovan"); 
                 if (Fields[Fields.IndexOf(tmp)].State != MineFieldState.Obstacle)
@@ -50,7 +50,7 @@ namespace Mining
             // Set Fields empty when someone stands on them
             foreach(var it in World.Characters)
             {
-                MineField tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
+                var tmp = Fields.Find(x => x.Location.X == it.X && x.Location.Y == it.Y);
                 if (tmp == null) continue;
                 Fields[Fields.IndexOf(tmp)].State = MineFieldState.Empty;
             }

@@ -39,7 +39,7 @@ namespace Project_E
         public SettingsGUI SGUI;
         public AutoHeal AH;
         public Autolot Autolot;
-        public SpellManager SM;
+        //public SpellManager SM;
 
 
         #endregion
@@ -48,14 +48,13 @@ namespace Project_E
         #region Singelton
         private static Main instance = new Main();
         private int TabIndex;
+        private event EventHandler<StoodUpEventHandlerArgs> StoodUp;
 
 
         static Main() { }
 
         private Main()
         {
-            // GameWindow Settings
-           // MessageBox.Show("dd");
             XmlSerializeHelper<GameWIndoSizeDATA>.Load("WindowSize", out GWSDATA, false);
             GWS = new GameWindowSize(GWSDATA);
             Wait2CharLoad = new System.Timers.Timer(100);
@@ -93,7 +92,7 @@ namespace Project_E
             // TODO AH - nutno predavat tolik atrb ?!
             AH = new AutoHeal(SGUI.HealedPlayers, SGUI.KlerikShaman == 0 ? ".heal" : ".samheal",
                 SGUI.KlerikShaman == 0 ? ".enlightment" : ".improvement", SGUI.Weapons, WT, SGUI, SGUI.KlerikShaman == 0 ? 86 : 90,SK.HarmSelf);
-            SM = new SpellManager(SGUI, AB.Sacrafire,AH.Bandage);
+            //SM = new SpellManager(SGUI, AB.Sacrafire,AH.Bandage);
             EreborGUI = EreborGUI.LastInstance;
             #endregion
 
@@ -105,7 +104,17 @@ namespace Project_E
                 EreborGUI.GW_Width = GWSDATA.Width.ToString();
 
             }));
-
+            //Refrash morf and stoodups
+            if (SGUI.AutoMorf)
+            {
+                Core.UnregisterServerMessageCallback(0x77, automorf);
+                Core.RegisterServerMessageCallback(0x77, automorf);
+            }
+            if (SGUI.PrintStoodUp)
+            {
+                Core.UnregisterServerMessageCallback(0x6E, onStoodUp);
+                Core.RegisterServerMessageCallback(0x6E, onStoodUp);
+            }
 
             // Refresh GUI - all lists
             EreborGUI.Invoke(new MethodInvoker(delegate
@@ -169,7 +178,8 @@ namespace Project_E
             World.Player.Changed += Player_Changed;
             WT.OnSuccessHit += WT_OnSuccessHit;
             WT.HiddenChanged += WT_HiddenChanged;
-         
+            StoodUp += Main_StoodUp;
+
 
             UO.PrintInformation("Loaded");
             Wait2CharLoad = null;
@@ -284,7 +294,7 @@ namespace Project_E
         }
 
         private short LastHitDecrease;
-
+        private DateTime LastHitTime;
 
         private void WT_HitsChanged(object sender, Watcher.HitsChangedArgs e)
         {
@@ -292,13 +302,22 @@ namespace Project_E
 
             if (!e.gain)
             {
+                LastHitTime = DateTime.Now;
                 LastHitDecrease = e.amount;
                 PrintColor = 0x0026; // RED
             }
             if(SGUI.AutoDrink && !World.Player.Dead)
             {
-                if ((World.Player.Hits + 10) <= LastHitDecrease) UO.Say(".potionheal");
-                if (World.Player.Hits <= short.Parse(SGUI.Hits2Drink ?? "50")) UO.Say(".potionheal");
+                if ((World.Player.Hits - 5) <= LastHitDecrease)
+                {
+                    UO.Say(".potionheal");
+                    AH.Bandage();
+                }
+                if (World.Player.Hits <= short.Parse(SGUI.Hits2Drink ?? "50"))
+                {
+                    UO.Say(".potionheal");
+                    AH.Bandage();
+                }
             }
 
             if (e.amount > 4)
@@ -863,15 +882,36 @@ namespace Project_E
             p.Skip(1);
             uint serial = p.ReadUInt32();
             ushort action = p.ReadUInt16();
-            if ((action == 26 || action == 11) && serial == World.Player.Serial && new UOCharacter(Aliases.LastAttack).Distance < 3)
+            if (StoodUp != null && (action == 26 || action == 11 || action == 29))
             {
-                UO.Print(SpeechFont.Normal, 0x0076, "Naprah na " + new UOCharacter(Aliases.LastAttack).Name);
+                foreach (EventHandler<StoodUpEventHandlerArgs> ev in StoodUp.GetInvocationList())
+                {
+                    ev.BeginInvoke(this, new StoodUpEventHandlerArgs() { action = action, serial = serial }, null, null);
+                }
             }
 
             return CallbackResult.Normal;
         }
+        private void Main_StoodUp(object sender, StoodUpEventHandlerArgs e)
+        {
+
+            if ((e.action == 26 || e.action == 11 || e.action == 29) && e.serial == World.Player.Serial && new UOCharacter(Aliases.LastAttack).Distance < 2)
+            {
+                if (e.action == 29)
+                {
+                    UO.Wait(200);
+                    if (DateTime.Now - LastHitTime < TimeSpan.FromMilliseconds(200)) return;
+                }
+                World.Player.Print(0x0077, "Naprah na " + new UOCharacter(Aliases.LastAttack).Name);
+            }
+        }
 
 
+        private class StoodUpEventHandlerArgs : EventArgs
+        {
+            public ushort action { get;set;}
+            public uint serial { get; set; }
+        }
 
     }
 

@@ -9,7 +9,11 @@ namespace Project_E.Lib
 {
     public class Abilities
     {
-
+        public Abilities()
+        {
+            Journal.Clear();
+        }
+        private DateTime LastLeap = DateTime.Now;
         public void probo(DateTime HiddenTime, Action hidoff)
         {
             UOCharacter target = new UOCharacter(Aliases.GetObject("laststatus"));
@@ -82,6 +86,35 @@ namespace Project_E.Lib
         }
 
 
+        public void Leap()
+        {
+            if (DateTime.Now - LastLeap > TimeSpan.FromMilliseconds(4400))
+            {
+                UOCharacter ch = new UOCharacter(Aliases.LastAttack);
+                if (ch.Distance < 10 && World.Player.Warmode)
+                {
+                    if (!World.Player.Warmode)
+                    {
+                        UO.Warmode(true);
+                    }
+                    UO.Attack(ch);
+                    UO.Say(".leap");
+                    LastLeap = DateTime.Now;
+                    while (DateTime.Now - LastLeap < TimeSpan.FromMilliseconds(4400))
+                    {
+                        UO.Wait(100);
+                    }
+                    World.Player.Print("===== LEAP =====");
+                }
+                else
+                    UO.PrintError("Moc Daleko");
+
+            }
+            else
+                UO.PrintError("Jeste nemuzes pouzit Leap");
+        }
+
+
         #region Voodoo
 
         // TODO autoVOooDOO dung and home
@@ -105,6 +138,7 @@ namespace Project_E.Lib
         List<Graphic> HeadGraphics = new List<Graphic>() { 0x1DAE, 0x1DA0, 0x1CE9, 0x1CE1 };
 
         private VoodooState done;
+
 
         public void Sacrafire()//Action bandage)
         {

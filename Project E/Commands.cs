@@ -12,6 +12,7 @@ namespace Project_E
     public class Commands
     {
         private bool Register = true;
+        private bool acast = false;
         private bool HealON = false;
         private UOCharacter provo1;
         private UOCharacter provo2;
@@ -40,6 +41,23 @@ namespace Project_E
         //{
         //    Main.Instance.FA.sipky2();
         //}
+        [Command]
+        public void presun(int pocet)
+        {
+            Main.Instance.FA.MoveX(pocet);
+        }
+
+        [Command]
+        public void Leap()
+        {
+            Main.Instance.AB.Leap();
+        }
+
+        [Command]
+        public void id()
+        {
+            Main.Instance.FA.Identificate();
+        }
 
         [Command]
         public void heal()
@@ -212,11 +230,11 @@ namespace Project_E
             Main.Instance.SK.Poisoning();
         }
 
-        [Command, BlockMultipleExecutions]
-        public void swhotkeys()
-        {
-            Main.Instance.SGUI.SwitchabeHotkeys.swHotk();
-        }
+        //[Command, BlockMultipleExecutions]
+        //public void swhotkeys()
+        //{
+        //    Main.Instance.SGUI.SwitchabeHotkeys.swHotk();
+        //}
 
         [Command]
         public void kudla()
@@ -266,6 +284,17 @@ namespace Project_E
         {
             Main.Instance.SK.HarmSelf(attacklast);
         }
+        [Command]
+        public void arrowself(bool attacklast)
+        {
+            Main.Instance.SK.HarmSelf(attacklast, true);
+        }
+        [Command]
+        public void arrowself()
+        {
+            Main.Instance.SK.HarmSelf(false,true);
+        }
+
 
 
         //[Command]
@@ -314,70 +343,123 @@ namespace Project_E
 
         //}
 
-        [Command]
-        public void nhcast(string spellname, Serial target)
+        //[Command]
+        //public void nhcast(string spellname, Serial target)
+        //{
+        //    Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+        //    SpellFizz = false;
+        //    //Aliases.SetObject("SpellTarget", target);
+        //    if (HealON)
+        //    {
+        //        Main.Instance.AH.ShamanCast = true;
+        //        Main.Instance.SM.Cast(spellname, target);
+        //        var StatSpell = DateTime.Now;
+        //        int delay = 0;
+        //        spellname = SpellManager.Name2Code(spellname);
+        //        if (SpellManager.SpellDelays.ContainsKey(spellname))
+        //        {
+        //            delay = (SpellManager.SpellDelays[spellname] + 300);
+        //        }
+        //        while (!SpellFizz)
+        //        {
+        //            if (DateTime.Now - StatSpell > TimeSpan.FromMilliseconds(delay))
+        //            {
+        //                Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+        //                Main.Instance.AH.ShamanCast = false;
+        //                break;
+        //            }
+        //            UO.Wait(100);
+        //        }
+        //        Main.Instance.AH.ShamanCast = false;
+        //    }
+        //    else
+        //        Main.Instance.SM.Cast(spellname, target);
+
+
+        //}
+        //private void SM_OnSpellDone(object sender, SpellManager.OnSpellDoneArgs e)
+        //{
+        //    Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
+        //    //UO.Print("FIZZ");
+        //    SpellFizz = true;
+        //    UO.Wait(10);
+        //    Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+
+        //}
+
+        //[Command]
+        //public void ccast(string spellname, Serial target)
+        //{
+        //    //Aliases.SetObject("SpellTarget", target);
+        //    //if (spellname == "frostbolt" || spellname == "necrobolt")
+        //    //{
+        //    //    UO.Say("." + spellname);
+        //    //}
+        //    //else
+        //    //    UO.Cast(spellname);
+        //    Main.Instance.SM.Cast(spellname, target);
+
+        //}
+
+        [Command,BlockMultipleExecutions]
+        public void nhcast(string spell, Serial target)
         {
-            Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
-            SpellFizz = false;
-            //Aliases.SetObject("SpellTarget", target);
-            if (HealON)
+            Main.Instance.AH.ShamanCast = true;
+            if (Main.Instance.SGUI.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Main.Instance.SGUI.Sacrafire ?? "40")) && Main.Instance.SGUI.AutoSacrafire)
+                sacrafire();
+            var tmp = World.Player.Mana;
+            var tmpTime = DateTime.Now;
+            if (spell == "frostbolt")
             {
-                Main.Instance.AH.ShamanCast = true;
-                Main.Instance.SM.Cast(spellname, target);
-                var StatSpell = DateTime.Now;
-                int delay = 0;
-                spellname = SpellManager.Name2Code(spellname);
-                if (SpellManager.SpellDelays.ContainsKey(spellname))
-                {
-                    delay = (SpellManager.SpellDelays[spellname] + 300);
-                }
-                while (!SpellFizz)
-                {
-                    if (DateTime.Now - StatSpell > TimeSpan.FromMilliseconds(delay))
-                    {
-                        Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
-                        Main.Instance.AH.ShamanCast = false;
-                        break;
-                    }
-                    UO.Wait(100);
-                }
-                Main.Instance.AH.ShamanCast = false;
+                new UOCharacter(target).WaitTarget();
+                UO.Say(".frostbolt");
             }
             else
-                Main.Instance.SM.Cast(spellname, target);
-
-
-        }
-        private void SM_OnSpellDone(object sender, SpellManager.OnSpellDoneArgs e)
-        {
-            Main.Instance.SM.OnSpellDone -= SM_OnSpellDone;
-            //UO.Print("FIZZ");
-            SpellFizz = true;
-            UO.Wait(10);
-            Main.Instance.SM.OnSpellDone += SM_OnSpellDone;
+            {
+                UO.Cast(spell, target);
+            }
+            while(DateTime.Now-tmpTime<TimeSpan.FromSeconds(4))
+            {
+                UO.Wait(100);
+                if (World.Player.Mana < tmp) break;
+            }
 
         }
 
         [Command]
-        public void ccast(string spellname, Serial target)
+        public void necro(Serial target)
         {
-            //Aliases.SetObject("SpellTarget", target);
-            //if (spellname == "frostbolt" || spellname == "necrobolt")
-            //{
-            //    UO.Say("." + spellname);
-            //}
-            //else
-            //    UO.Cast(spellname);
-            Main.Instance.SM.Cast(spellname, target);
-
+            new UOCharacter(target).WaitTarget();
+            UO.Say(".necrobolt");
         }
 
-        
+        [Command]
+        public void frost(Serial target)
+        {
+            new UOCharacter(target).WaitTarget();
+            UO.Say(".frostbolt");
+        }
 
+        [Command]
+        public void sbolt(Serial target)
+        {
+            if (Main.Instance.SGUI.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Main.Instance.SGUI.Sacrafire ?? "40")) && Main.Instance.SGUI.AutoSacrafire)
+                sacrafire();
+            UO.Cast(StandardSpell.EnergyBolt, target);
+        }
+
+        [Command]
+        public void sfrost(Serial target)
+        {
+            if (Main.Instance.SGUI.KlerikShaman == 1 && World.Player.Mana < (World.Player.MaxMana - short.Parse(Main.Instance.SGUI.Sacrafire ?? "40")) && Main.Instance.SGUI.AutoSacrafire)
+                sacrafire();
+            new UOCharacter(target).WaitTarget();
+            UO.Say(".frostbolt");
+        }
 
 
         [Command]
-        public void inv()
+        public void invis()
         {
             Main.Instance.SK.Invis();
 
@@ -388,6 +470,12 @@ namespace Project_E
         public void reactiv(Serial target)
         {
             Main.Instance.SK.ReactiveArmor(target);
+
+        }
+        [Command]
+        public void teleport(Serial target)
+        {
+            Main.Instance.SK.Teleport(target);
 
         }
 
@@ -424,6 +512,11 @@ namespace Project_E
         {
             UO.PrintInformation("Zamer co chces vybrat");
             Serial target = UIManager.TargetObject();
+            if(target==World.Player.Serial)
+            {
+                UO.PrintError("Nezameruj sebe!!");
+                return;
+            }
             Main.Instance.FA.TakeAllFrom(target, delay);
         }
 
@@ -431,6 +524,12 @@ namespace Project_E
         public void dress(int index)
         {
             Main.Instance.SGUI.Equips.equipy[index].DressOnly();
+        }
+
+        [Command]
+        public void autocast(string Spell,bool charged, Serial target)
+        {
+            Main.Instance.SK.Autocast(Spell, charged, target, ref acast);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-
+using System.Linq;
 
 namespace Mining.PathFinding
 {
@@ -62,9 +62,9 @@ namespace Mining.PathFinding
         {
 
             nodes = new List<Node>();
-            foreach(MineField f in map.Fields)
+            foreach(MineField f in map.Fields.Where(x=>x.IsWalkable && x.State!=MineFieldState.Obstacle))
             {
-                nodes.Add(new Node(f.Location, f.IsWalkable && f.State!=MineFieldState.Obstacle, searchParameters.EndLocation));
+                nodes.Add(new Node(f.Location, f.IsWalkable, searchParameters.EndLocation));
             }
 
            /* this.width = map.GetLength(0);

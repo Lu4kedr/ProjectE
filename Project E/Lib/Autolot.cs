@@ -12,11 +12,14 @@ namespace Project_E.Lib
     {
         private bool IsDisposed = false;
         private List<Graphic> toCarv = new List<Graphic> { 0x2006, 0x0EE3, 0x0EE4, 0x0EE5, 0x0EE6, 0x2006 };//pvuciny+mrtvola
+        private List<Serial> IgnoreList = new List<Serial>();
         private readonly List<string> jezdidla = new List<string> { "body of mustang", "body of zostrich", "body of oclock", "body of orn", "oody of ledni medved", "body of ridgeback", "body of ridgeback savage" };
         private ushort[] FOOD = { 0x0978, 0x097A, 0x097B, 0x097E, 0x098C, 0x0994, 0x09B7, 0x09B9, 0x09C0, 0x09C9, 0x09D0, 0x09D1, 0x09D2, 0x09E9, 0x09EA, 0x09EC, 0x09F2, 0x0C5C, 0x0C64, 0x0C66, 0x0C6A, 0x0C6D, 0x0C70, 0x0C72, 0x0C74, 0x0C77, 0x0C79, 0x0C7B, 0x0C7F, 0x0D39, 0x103B, 0x1040, 0x1041, 0x1608, 0x1609, 0x160A, 0x171F, 0x1726, 0x1727, 0x1728, 0x172A };
         private Dictionary<Graphic, int> LotItems = new Dictionary<Graphic, int>() { { 0x0eed, 0 }, { 0x14EB, 0 }, { 0x0E76, 0 } };
-        private BackgroundWorker bw;
+        //private BackgroundWorker bw;
         private bool food, gems, regeants, feathers, bolts, leather, extend1, extend2;
+        private System.Timers.Timer LotRun;
+        private bool CarvProgress=false;
 
         // Local property - add & delete items from LotItems
         private bool _Food
@@ -306,25 +309,26 @@ namespace Project_E.Lib
             if (_Leather != Leather) _Leather = Leather;
             if (_Extend1 != Extend1) _Extend1 = Extend1;
             if (_Extend2 != Extend2) _Extend2 = Extend2;
+            IgnoreList.Clear();
 
         }
 
         public void Start()
         {
-            bw = new BackgroundWorker();
-            bw.DoWork += Bw_DoWork;
-            bw.WorkerSupportsCancellation = true;
-            bw.RunWorkerAsync();
+
+            LotRun = new System.Timers.Timer(200);
+            LotRun.Elapsed += LotRun_Elapsed;
+            LotRun.Start();
         }
 
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        private void LotRun_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            while (!((BackgroundWorker)sender).CancellationPending)
-            {
-                if (Main.Instance.EreborGUI.LotOnOff.BackColor == System.Drawing.Color.Green) Checker();
-                Thread.Sleep(300);
-            }
+            LotRun.Elapsed -= LotRun_Elapsed;
+            if (Main.Instance.EreborGUI.LotOnOff.BackColor == System.Drawing.Color.Green) Checker();
+            UO.Wait(100);
+            LotRun.Elapsed += LotRun_Elapsed;
         }
+
 
         private void Checker()
         {
@@ -353,19 +357,20 @@ namespace Project_E.Lib
 
                 }
             }
-
+            if (CarvProgress) return;
             if (!World.Player.Hidden)
             {
-                foreach (UOItem it in World.Ground.Where(x => x.Graphic == 0x2006 && x.Items.CountItems() < 7).ToList())
+                foreach (UOItem it in World.Ground.Where(x => x.Graphic == 0x2006 && x.Items.CountItems() < 7 && x.Items.CountItems() >0).ToList())
                 {
                     Lot(it);
+                    UO.Wait(200);
                 }
             }
         }
 
         private void Lot(UOItem it)
         {
-            foreach (UOItem i in it.Items.Where(item => LotItems.Any(li => item.Graphic == li.Key)).ToList())//it.AllItems)
+            foreach (UOItem i in it.Items.Where(item => LotItems.Any(li => item.Graphic == li.Key)).ToList())
             {
                 UO.MoveItem(i, ushort.MaxValue, Main.Instance.SGUI.LotBackpack == default(uint) ? World.Player.Backpack : Main.Instance.SGUI.LotBackpack);
                 UO.Wait(300);
@@ -375,16 +380,28 @@ namespace Project_E.Lib
 
         public void Carving()
         {
-            World.FindDistance = 4;
-            foreach (UOItem it in World.Ground.Where(x => x.Distance < 4 && toCarv.Any(p => x.Graphic == p)))//x.Graphic == 0x2006))// && jezdidla.All(y => y != x.Name.ToLower()) ))//!jezdidla.Contains(x.Name)).ToList())
+            try
             {
-                it.Click();
-                UO.Wait(100);
-                if (jezdidla.Contains(it.Name.ToLower())) continue;
+                LotRun.Elapsed -= LotRun_Elapsed;
+                World.FindDistance = 4;
+                CarvProgress = true; 
+                foreach (UOItem it in World.Ground.Where(x => x.Distance < 4 && toCarv.Any(p => x.Graphic == p)))
+                {
+                    if (IgnoreList.Contains(it)) continue;
+                    it.Click();
+                    UO.Wait(150);
+                    if (jezdidla.Contains(it.Name.ToLower())) continue;
 
-                it.WaitTarget();
-                new UOItem(Main.Instance.SGUI.CarvTool).Use();
-                UO.Wait(300);
+                    it.WaitTarget();
+                    new UOItem(Main.Instance.SGUI.CarvTool).Use();
+                    UO.Wait(300);
+                    IgnoreList.Add(it);
+                }
+            }
+            finally
+            {
+                LotRun.Elapsed += LotRun_Elapsed;
+                CarvProgress = false;
             }
 
         }
@@ -408,9 +425,9 @@ namespace Project_E.Lib
         {
             if (Disposing)
             {
-                bw.CancelAsync();
-                bw.DoWork -= Bw_DoWork;
-                bw = null;
+
+                LotRun.Stop();
+                LotRun = null;
                 Main.Instance.EreborGUI.OnChanged -= Erebor_OnChanged;
             }
         }
